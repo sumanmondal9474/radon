@@ -2,6 +2,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const route = require('./routes/route.js');
 const { default: mongoose } = require('mongoose');
+const moment = require('moment');
+const ip=require('ip');
+// const GobalApi= require("../testGlobalApi/globalApi")
+
 const app = express();
 
 app.use(bodyParser.json());
@@ -13,6 +17,16 @@ mongoose.connect("mongodb+srv://shubhro786:wdxgITU32OrB5mSa@cluster0.idazp.mongo
 })
 .then( () => console.log("MongoDb is connected"))
 .catch ( err => console.log(err) )
+
+app.use(
+    function (req,res,next){
+        // let ipAddr=req.ip
+        let Atime=moment().format().split('T')
+        let time=Atime[1].split('+')
+        console.log(Atime[0]+" "+ time[0] +" , "+ip.address()+" , "+req.url)
+        next() 
+    }
+)
 
 app.use('/', route);
 
