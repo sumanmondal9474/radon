@@ -12,18 +12,19 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-mongoose.connect("mongodb+srv://shubhro786:wdxgITU32OrB5mSa@cluster0.idazp.mongodb.net/shunhra-DB?retryWrites=true&w=majority", {
+mongoose.connect("mongodb+srv://suman_functionup:hsfwdJk4NjzvsFBh@cluster0.o84xv.mongodb.net/?retryWrites=true&w=majority", {
     useNewUrlParser: true
 })
 .then( () => console.log("MongoDb is connected"))
 .catch ( err => console.log(err) )
 
 app.use(
-    function (req,res,next){
+    function (req, res, next){
         // let ipAddr=req.ip
         let Atime=moment().format().split('T')
         let time=Atime[1].split('+')
         console.log(Atime[0]+" "+ time[0] +" , "+ip.address()+" , "+req.url)
+     
         next() 
     }
 )
