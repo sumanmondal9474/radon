@@ -49,6 +49,7 @@ const getUserData = async function (req, res) {
     return res.send({ status: false, msg: "No such user exists" });
 
   res.send({ status: true, data: userDetails });
+  
 };
 
 const updateUser = async function (req, res) {
