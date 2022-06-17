@@ -22,10 +22,11 @@ let getStates = async function (req, res) {
 
 let getDistricts = async function (req, res) {
     try {
-        let id = req.params.stateId
+        let id = req.query.stateId
+        let date = req.query.date
         let options = {
             method: "get",
-            url: `https://cdn-api.co-vin.in/api/v2/admin/location/districts/${id}`
+            url: `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id=${id}&date=${date}`
         }
         let result = await axios(options);
         console.log(result)
