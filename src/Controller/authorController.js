@@ -23,7 +23,6 @@ return res.status(400).send({status:false,msg:"Enter a valid title Mr or Mrs or 
 if(!validate(email)){
     return res.status(400).send({status:false,msg:"Enter a valid email " })
 }
-console.log(validate(email))
     let checkPassword = schema.validate(password)
     if(!checkPassword) {
         return res.status(400).send({status:false,msg:"Enter a valid password " })
