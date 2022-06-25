@@ -12,5 +12,7 @@ router.patch("/getBlog",async function(req,res){
     res.send("done")
 })
 
+router.put("/blogs/:blogId",blog.updateBlog)
 
+router.delete("/blogs/:blogId",blog.deleteBlogbyPath)
 module.exports=router
