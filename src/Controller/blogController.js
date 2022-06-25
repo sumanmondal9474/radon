@@ -30,7 +30,7 @@ if(x) {if(x.trim())
         data[`${x}`]=x.trim()
       
     }else if(Object.keys(data).indexOf(x)){
-       return res.send(400).send({status:false,msg:`no value of ${x}`})
+       return res.sataus(400).send({status:false,msg:`no value of ${x}`})
 
     } 
 }
@@ -43,7 +43,7 @@ if(tags) {if(tags.trim())
         data.tags=tags.trim()
       
     }else if(Object.keys(data).indexOf(tags)){
-       return res.send(400).send({status:false,msg:"no value of tags"})
+       return res.status(400).send({status:false,msg:"no value of tags"})
 
     } 
 }
