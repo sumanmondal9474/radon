@@ -1,10 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const author=require ("../Controller/authorController")
+const blog=require("../Controller/blogController")
+router.post("/authors",author.authorCreate)
 
-router.post("/authors",function(req,res){
-    res.send("done")
-})
+router.post("/createblog",blog.createBlog)
 
-
-module.export=router
+module.exports=router
