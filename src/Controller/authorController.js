@@ -17,8 +17,14 @@ const createAuthor=async function(req,res){
   if(!fname|| !lname || !title || !email || !password){
     return res.status(400).send({status:false,msg:"please give required fields " })
 }
+if(!fname.trim()|| !lname.trim() || !title.trim() || !email.trim() || !password.trim()){
+    return res.status(400).send({status:false,msg:"please dont give space " })
+}
+
 if(["Mr", "Mrs", "Miss"].indexOf(data.title)==-1)
 return res.status(400).send({status:false,msg:"Enter a valid title Mr or Mrs or Miss " })
+
+//title="M"+title.split("").shift(). join("")
 
 if(!validate(email)){
     return res.status(400).send({status:false,msg:"Enter a valid email " })
@@ -36,6 +42,8 @@ if(!validate(email)){
         res.status(500).send({err:err.message})
     }
 }
+
+
 
 
 module.exports.authorCreate=createAuthor
