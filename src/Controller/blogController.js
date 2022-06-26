@@ -55,17 +55,25 @@ if(Object.keys(data).indexOf("subcategory")!==-1) {if(subcategory.trim())
 const getBlogs=async function(req,res){
     try{
         const data=req.query
+        let{authorId,tags,subcategory,category}=data
+        let filter={}
+        if(Object.keys(data)!=0){
+            if(!authorId||!tags||!subcategory||!category){
+                if(authorId)filter.authorId=authorId
+                if(tags)filter.tags=tags
+                if(subcategory)filter.subcategory=subcategory
+                if(category)filter.category=category
+            }else return res.status(400).send("badddddda!")
+        }
         
-        let a=["subcategory","authorId","category","tags"] 
-        let store =  onlythisValue.some(ele =>Object.keys(req.query).includes(ele) );
         
-        
-        const allBlog=await blogModel.find({$and:[data,{isDeleted:false,isPublished:true}]})
+        const allBlog=await blogModel.find({$and:[filter,{isDeleted:false,isPublished:true}]})
 
         if(!allBlog[0]){
             return res.status(404).send({status:false,msg:"No Blog found"}) 
-
         }
+        // if(Object.keys(data)!=0){
+        // // if(!store)return res.status(400).send({status:false,msg:"Query worng"})}
 
         
         return res.status(200).send({status:true,data:allBlog}) 
@@ -74,6 +82,10 @@ const getBlogs=async function(req,res){
         return res.status(500).send({status:false,msg:"no value of tags"}) 
     }
 }
+
+
+
+
 
 module.exports.createBlog=createBlog
 module.exports.getBlogs=getBlogs
