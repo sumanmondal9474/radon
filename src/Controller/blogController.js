@@ -55,18 +55,41 @@ if(Object.keys(data).indexOf("subcategory")!==-1) {if(subcategory.trim())
 const getBlogs=async function(req,res){
     try{
         const data=req.query
+        let {subcategory,authorId,category,tags}=data
+        let obj={}
         
-        //let a=["subcategory","authorId","category","tags"] 
-       // let store =  onlythisValue.some(ele =>Object.keys(req.query).includes(ele) );
+       if(Object.keys(data)==0){
+       return obj={} 
+        }else {
+            if(subcategory){
+                //we are pushing obj within empty subcategory
+                obj.subcategory=subcategory
+            }
+            if(tags){
+                //we are pushing obj within empty tags
+                obj.tags=tags
+            }
+            if(authorId){
+                //we are pushing obj within empty authorId
+                obj.authorId=authorId
+            }
+            if(category){
+                //we are pushing obj within empty category
+                obj.category=category
+            }
+            if(Object.keys(obj)==0){
+                return res.status(404).send({status:false,msg:"obj keys must be within [subcategory,authorId,category,tags]"}) 
 
-        
-        const allBlog=await blogModel.find({$and:[data,{isDeleted:false,isPublished:true}]})
+            }
+        }
+
+        const allBlog=await blogModel.find({$and:[obj,{isDeleted:false,isPublished:true}]})
 
         if(!allBlog[0]){
             return res.status(404).send({status:false,msg:"No Blog found"}) 
 
         }
-
+     
         
         return res.status(200).send({status:true,data:allBlog}) 
 
