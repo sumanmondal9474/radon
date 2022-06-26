@@ -59,6 +59,7 @@ const getBlogs=async function(req,res){
         let obj={}
     console.log(typeof obj)
     console.log(Object.keys(data)[0])
+    //inside if undefind means false
        if(Object.keys(data)[0]){
             if(subcategory){
                 //we are pushing obj within empty subcategory
