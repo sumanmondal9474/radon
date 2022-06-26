@@ -56,8 +56,8 @@ const getBlogs=async function(req,res){
     try{
         const data=req.query
         
-        let a=["subcategory","authorId","category","tags"] 
-        let store =  onlythisValue.some(ele =>Object.keys(req.query).includes(ele) );
+        //let a=["subcategory","authorId","category","tags"] 
+       // let store =  onlythisValue.some(ele =>Object.keys(req.query).includes(ele) );
 
         
         const allBlog=await blogModel.find({$and:[data,{isDeleted:false,isPublished:true}]})
@@ -125,6 +125,8 @@ res.status(200).send({status:true,data:updateBlog})
 }
 }
 
+// --------------------------------deleteblog----------------------------------------
+
 const deleteBlogbyPath=async function(req,res){
     try{
         const data=req.params
@@ -157,9 +159,50 @@ const deleteblog=await blogModel.findOneAndUpdate({_id:data.blogId,isDeleted:fal
 
     }
 }
+//--------------------------deletebyQuery----------------------------
+
+const deletebyQuery=async function(req,res){
+    try{
+
+        let data=req.query
+  let {authorId,subcategory,tags,isPublished}=data
+let obj={}
+
+  if(Object.keys(data).length==0){
+    return  res.status(400).send({status:true,msg:"plz enter atleast one query for filter a blog"})
+ }
+ if(authorId){
+    if(!mongoose.isValidObjectId(data.authorId)){
+        return res.status(400).send({status:false,msg:"please give valid authorId " })
+     }
+     obj.authorId=authorId
+}
+//console.log(obj)
+if(tags){
+    obj.tags=tags
+    }
+    if(subcategory){
+        obj.subcategory=subcategory
+        }
+        if(isPublished!==undefined){
+            obj.isPublished=isPublished
+            }
+if(Object.keys(obj).length==0){
+    return  res.status(400).send({status:false,msg:"plz give query within [authorId,subcategory,tags,isPublished]"})
+}
+
+        const deletebyQuery=await blogModel.updateMany({$and:[obj,{isDeleted:false}]},{$set:{isDeleted:true,deletedAt:new Date,isPublished:false}})
+         if(deletebyQuery.matchedCount==0) {
+             return  res.status(404).send({status:true,msg:"there is no match"})}
+        
+
+        res.status(200).send({status:true,data:deletebyQuery})
 
 
-module.exports.createBlog=createBlog
-module.exports.getBlogs=getBlogs
-module.exports.updateBlog=updateBlog
-module.exports.deleteBlogbyPath=deleteBlogbyPath
+    }catch(err){
+        res.status(500).send({status:false,msg:err.message})
+
+    }
+}
+
+module.exports={createBlog,getBlogs,updateBlog,deleteBlogbyPath,deletebyQuery}

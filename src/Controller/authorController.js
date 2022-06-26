@@ -1,6 +1,7 @@
 const authorModel=require("../Model/authorModel")
 const {validate}=require("email-validator")
 const passwordValidator=require("password-validator")
+const jwt=require("jsonwebtoken")
 // const namevalidator=require("validate-npm-package-name")
 
 let schema = new passwordValidator();
@@ -43,7 +44,47 @@ if(!validate(email)){
     }
 }
 
+const loginAuthor=async function (req,res){
+    try{
+
+   let{email,password}=req.body
+
+if(!email || !password){
+    return res.status(400).send({status:false,msg:"plz Enter email and password " })
+}
+email=email.trim()
+
+ if(!validate(email)){
+
+return res.status(400).send({status:false,msg:"Enter a valid email " })
+    }
+// email=email.toLowerCase()
+
+    let checkPassword = schema.validate(password)
+    if(!checkPassword) {
+        return res.status(400).send({status:false,msg:"Enter a valid password " })
+    }
+   const authorData=await authorModel.findOne({
+    email,password
+   })
+   if(!authorData){
+    res.status(400).send({status:false,msg:"no data found for this email & password"})
+}
+
+const TOKEN=jwt.sign({
+    authorId:authorData._id
+    },"this-is-a-srcret-key")
+
+    res.status(200).send({staus:true,TOKEN})
+
+
+    }catch(err){
+        res.status(500).send({err:err.message})
+
+    }
+}
 
 
 
-module.exports.authorCreate=createAuthor
+//module.exports.authorCreate=createAuthor
+module.exports={createAuthor,loginAuthor}
