@@ -2,6 +2,12 @@ const collegeModel = require("../models/collegeModel");
 const internModel = require("../models/internModel");
 let createCollege= async function(req,res){
     let bodyData=req.body
+    let name=req.body.name
+    let fullName=req.body.fullName
+    let logoLink=req.body.logoLink
+    if(!name){return res.status(400).send({status:false ,msg: "name is required"})}
+    if(!fullName){return res.status(400).send({status:false ,msg: "fullName is required"})}
+    if(!logoLink){return res.status(400).send({status:false ,msg: "logoLink is required"})}
     let data=await collegeModel.create(bodyData)
     res.status(201).send({status:true,data: data})
 }
