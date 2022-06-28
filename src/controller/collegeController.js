@@ -1,5 +1,5 @@
 const collegeModel = require("../models/collegeModel");
-
+const internModel = require("../models/internModel");
 let createCollege= async function(req,res){
     let bodyData=req.body
     let data=await collegeModel.create(bodyData)
@@ -10,9 +10,13 @@ let createCollege= async function(req,res){
 const collegedetail = async function(req,res){
 
 let data1 = req.query.name
-let data2 = req.query.fullName
-let college = await collegeModel.findOne({$or:[{data1},{data2}]})
-res.status(200).send({status:true, data:college}) 
+
+let college = await collegeModel.findOne({data1 , isDeleted:false},{updatedAt:0,createdAt:0,isDeleted:0,__v:0}).lean()
+let collegeId=college._id
+let interns=await internModel.find({collegeId:collegeId})
+college.interns=interns
+delete college._id
+res.status(200).send({data:college}) 
 
 
 }
