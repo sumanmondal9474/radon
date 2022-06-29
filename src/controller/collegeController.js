@@ -37,11 +37,14 @@ catch(error){
 
 const collegedetail = async function (req, res) {
 
-    let data1 = req.query.name
-    let data2 = req.query.fullName
-    let college = await collegeModel.findOne({ data1 })
-    
-    res.status(200).send({ status: true, data: college })
+let data1 = req.query.name
+
+let college = await collegeModel.findOne({data1 , isDeleted:false},{updatedAt:0,createdAt:0,isDeleted:0,__v:0}).lean()
+let collegeId=college._id
+let interns=await internModel.find({collegeId:collegeId})
+college.interns=interns
+delete college._id
+res.status(200).send({data:college}) 
 
 
 }
