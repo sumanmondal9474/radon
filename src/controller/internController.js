@@ -1,13 +1,62 @@
+const { find } = require("../models/internModel");
 const internModel = require("../models/internModel");
-
-let createInterns= async function(req,res){
-    let bodyData=req.body
-    let email=req.body.email
-     
-    if(!email){return res.status(400).send({status:false ,msg: "email is required"})}
-    if(!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/).test(email)){return res.status(400).send({status: false, msg: "write a valid email id"})}
-    let data=await internModel.create(bodyData)
-    res.status(201).send({status:true,data:data})
-
+const collegeModel = require("../models/collegeModel")
+const mongoose =  require("mongoose")
+const isValid = function (value) {
+  if (typeof value === "undefined" || value === null) return false
+  if (typeof value === String && value.trim().length === 0) return false
+  return true;
 }
-module.exports.createInterns=createInterns
+
+
+let createInterns = async function (req, res) {
+  
+    let bodyData = req.body
+    let { name, email, mobile, collegeId } = bodyData
+   
+    if (Object.keys(bodyData).length === 0) {
+      return res.status(400).send({ status: false, msg: "please provide data" })
+    }
+    console.log(collegeId)
+
+    let checkemail = await internModel.findOne({ email: email })
+    let checkmobile = await internModel.findOne({ mobile: mobile })
+    let checkCollegeId = await collegeModel.find({_id:collegeId})
+   
+    if (checkCollegeId.length === 0) {
+      return res.status(400).send({ status: false, msg: "please provide college id" })
+    }
+if(/^[a-zA-Z0-9]$/)
+
+    if (!isValid(name)) {
+      return res.status(400).send({ status: false, message: "name is missing" })
+    }
+    if (!/^([A-Za-z ]){1,100}$/.test(name)) {
+      return res.status(400).send({ status: false, msg: "name not be a number" })
+    }
+
+    if (checkmobile)
+      return res.status(400).send({ status: false, msg: "mobile number is already exist enter a unique mobile number" })
+    if (!/^([0-9]){10}$/.test(mobile)) {
+      return res.status(400).send({ status: false, msg: " mobile number must  be of ten digits" })
+    }
+
+
+    if (checkemail) {
+      return res.status(400).send({ status: false, msg: "email is already exist enter a unique email id" })
+    }
+    if (!email) {
+      return res.status(400).send({ status: false, msg: "email is required" })
+    }
+    if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/).test(email)) {
+      return res.status(400).send({ status: false, msg: "write a valid email id" })
+    }
+    let data = await internModel.create(bodyData)
+
+    return res.status(201).send({ status: true, data: data })
+  
+}
+
+
+
+module.exports.createInterns = createInterns
