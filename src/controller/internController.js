@@ -66,10 +66,8 @@ let createInterns = async function (req, res) {
     }
 
     let data = await internModel.create(bodyData)
-    let finddata = await internModel.findOne({name:name},{_id:0, __v:0})
     
-
-    return res.status(201).send({ status: true, data:finddata})
+    return res.status(201).send({ status: true, data: data})
 
   }
   catch (error) {
