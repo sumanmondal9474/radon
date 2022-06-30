@@ -4,15 +4,7 @@ const internModel = require("../models/internModel");
 
 let createCollege = async function (req, res) {
     try{
-        // function validURL(myURL) {
-        //     var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-        //     '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|'+ // domain name
-        //     '((\\d{1,3}\\.){3}\\d{1,3}))'+ // ip (v4) address
-        //     '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ //port
-        //     '(\\?[;&amp;a-z\\d%_.~+=-]*)?'+ // query string
-        //     '(\\#[-a-z\\d_]*)?$','i');
-        //     return pattern.test(myURL);
-        //   }
+        
     let bodyData = req.body
     let { name, fullName, logoLink } = bodyData
 
@@ -35,16 +27,7 @@ if(!fullName){
 if(!logoLink){
     return res.status(400).send({ status: false, msg: "college logoLink is missing" })
 }
-// let regex = /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%.\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%\+.~#?&//=]*)/g;
-// if (!logoLink.match(regex)) return res.status(400).send({ status: false, message: "Please enter valid LogoLink" })
-// if(!mongoose.stringIsAValidUrl(logoLink)) {return res.status(400).send({ status: false, message: "Please enter valid LogoLink" })}
-// if (!validUrl.isUri(logoLink)){return res.status(400).send({ status: false, message: "Please enter valid LogoLink" })}
-// if(!(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%.\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%\+.~#?&//=]*)/g).test(logoLink)){
-//     return res.status(400).send({ status: false, msg: "please enter a valid logoLink" })
-// }
-// if(!validURL(logoLink)){return res.status(400).send({ status: false, message: "Please enter valid LogoLink" })}
-// if(!(/(https?:\/\/.*\.(?:jpg|jpeg|png|gif))/i).test(logoLink)){
-//   { return res.status(400).send({ status: false, msg: "please enter a valid logoLink" })}}
+
 const logoLinkValidator = (/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g).test(logoLink)
             if (!logoLinkValidator) {
                 return res.status(400).send({ status: false, message: "Please enter a valid logo link " })
@@ -73,8 +56,9 @@ if(checkname.length==0){
 let college = await collegeModel.findOne({name:data1 , isDeleted:false},{updatedAt:0,createdAt:0,isDeleted:0,__v:0}).lean()
 let collegeId=college._id
 let interns=await internModel.find({collegeId:collegeId},{_id:1,updatedAt:0,createdAt:0,isDeleted:0,__v:0,collegeId:0}).lean()
-college.interns=interns
 
+college.interns=interns
+if(!college.interns.length==0){return res.status(404).send({status:false , msg: "there is no intern from this college"})}
 delete college._id
 res.status(200).send({data:college}) }
 catch(error){

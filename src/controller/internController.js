@@ -25,20 +25,12 @@ let createInterns = async function (req, res) {
     }
 
 
-    // if (!isValid(name) || name.trim()==undefined) {
-    //   return res.status(400).send({ status: false, message: "name is missing" })
-    // }
-      
-
-    //   let space = name.trim()
-    //   if(space!=name){
-    //     return res.status(400).send({status:false,msg:"please dont give space " })
-    //   }
+    
   
-    if(!mongoose.isValidObjectId(collegeId)){ return res.status(400).send({status:false, msg: "invalid college id"})}
+    
     let checkemail = await internModel.findOne({ email: email })
     let checkmobile = await internModel.findOne({ mobile: mobile })
-    let checkCollegeId = await collegeModel.find({_id:collegeId})
+    let checkCollegeId = await collegeModel.findOne({_id:collegeId})
    
     
     if (!/^([A-Za-z ]){1,100}$/.test(name)) {
@@ -64,10 +56,13 @@ let createInterns = async function (req, res) {
     if (!/^([0-9]){10}$/.test(mobile)) {
       return res.status(400).send({ status: false, msg: " please provide valid mobile number" })
     }
-    if (checkCollegeId.length === 0) {
+    if (!collegeId) {
       return res.status(400).send({ status: false, msg: "please provide college id" })
     }
-  
+    if(!mongoose.isValidObjectId(collegeId)){ return res.status(400).send({status:false, msg: "invalid college id"})}
+    if (!checkCollegeId) {
+      return res.status(400).send({ status: false, msg: "college id doesnot exists" })
+    }
 
     let data = await internModel.create(bodyData)
 
