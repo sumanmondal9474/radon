@@ -2,6 +2,8 @@ const collegeModel = require("../models/collegeModel");
 const internModel = require("../models/internModel");
 
 
+
+
 let createCollege = async function (req, res) {
     try{
         
@@ -27,11 +29,6 @@ if(!fullName){
 if(!logoLink){
     return res.status(400).send({ status: false, msg: "college logoLink is missing" })
 }
-
-const logoLinkValidator = (/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g).test(logoLink)
-            if (!logoLinkValidator) {
-                return res.status(400).send({ status: false, message: "Please enter a valid logo link " })
-            }
 
 let collegecreate = await collegeModel.create(bodyData)
 
