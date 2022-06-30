@@ -74,7 +74,8 @@ let createInterns = async function (req, res) {
     data.collegeId=collegeId
    
     let internData= await internModel.create(data)
-    return res.status(201).send({ status: true, data: internData})
+    let responseInternData= await internModel.findOne(data,{_id:0,__v:0}) 
+    return res.status(201).send({ status: true, data: responseInternData})
     
 
   }
