@@ -45,7 +45,7 @@ let checkname = await collegeModel.find({name:data1})
 if(checkname.length==0){
     return res.status(400).send({status:false,msg:"please provide valid college name"})
 }
-let college = await collegeModel.findOne({data1 , isDeleted:false},{updatedAt:0,createdAt:0,isDeleted:0,__v:0}).lean()
+let college = await collegeModel.findOne({name:data1 , isDeleted:false},{updatedAt:0,createdAt:0,isDeleted:0,__v:0}).lean()
 let collegeId=college._id
 let interns=await internModel.find({collegeId:collegeId},{_id:1,updatedAt:0,createdAt:0,isDeleted:0,__v:0,collegeId:0}).lean()
 college.interns=interns
