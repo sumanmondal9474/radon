@@ -40,9 +40,8 @@ if(!logoLink){
 if(!validURL(logoLink)){
     return res.status(400).send({status:false, msg:"url not valid"})
 }
-// if(!/^([a-zA-z]){1,100}$/.test(name)){
-//     return res.status(400).send({ status: false, msg: "college name should not be a number or character" })
-// }
+
+
 let collegecreate = await collegeModel.create(bodyData)
 
     res.status(201).send({ status: true, data:collegecreate})
@@ -80,16 +79,5 @@ catch(error){
 module.exports.createCollege = createCollege
 module.exports.collegedetail = collegedetail
 
-// From FnUr001_AayushKumar_9304154450 to Everyone 07:31 PM
-// queries return an instance of the Mongoose Document class. Documents are much heavier than vanilla Javascript objects, because they have a lot of internal state for change tracking. Enable the lean option tells Mongoose to skip instantiating a full Mongoose document and just give you the plain old Javascript objects (POJOs)
-//              Lean document are more than 10x smaller than the mongoose document.
 
-//              The downside of enabling lean is that lean docs don't have :
-//               'Change tracking,
-//               'Casting and validation,
-//               'Getters and setters,
-//               'Virtuals
-//               'save()
-
-//               When to use Lean : If we're executing a query and sending the results without modification,to say, an Express response, you should use lean. In general, if you do not modify the query results and do not use custom getters, you should use lean(). If you modify the query results or rely on features like getters or transforms,we should not use lean().
         
