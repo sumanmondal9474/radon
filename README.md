@@ -1,4 +1,5 @@
 # Open-to-Intern-Project
+<<<<<<< HEAD
 
 Key points
 Create a group database groupXDatabase. You can clean the db you previously used and resue that.
@@ -103,3 +104,5 @@ College details
   }
 }
 
+=======
+>>>>>>> 0def639449f32502f1ed4ec9d116b537fad4daba

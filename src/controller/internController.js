@@ -78,3 +78,7 @@ catch(error){
 
 
 module.exports.createInterns = createInterns
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0def639449f32502f1ed4ec9d116b537fad4daba
