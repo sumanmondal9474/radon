@@ -19,6 +19,11 @@ let createInterns = async function (req, res) {
     if (Object.keys(bodyData).length === 0) {
       return res.status(400).send({ status: false, message: "please provide data" })
     }
+    
+    if (!collegeId) {
+      return res.status(400).send({ status: false, message: "please provide college id" })
+    }
+    
     if (!mongoose.isValidObjectId(collegeId)) { return res.status(400).send({ status: false, message: "invalid college id" }) }
     if (!name) {
       return res.status(400).send({ status: false, message: "name is missing " })
@@ -53,12 +58,10 @@ let createInterns = async function (req, res) {
       return res.status(400).send({ status: false, message: "mobile number is already exist enter a unique mobile number" })
     }
 
+   
     let checkCollegeId = await collegeModel.findOne({ _id: collegeId })
     
     
-    if (!collegeId) {
-      return res.status(400).send({ status: false, message: "please provide college id" })
-    }
     
 
     if (!checkCollegeId) {
