@@ -62,7 +62,7 @@ catch(error){
 
 const collegedetail = async function (req, res) {
 
-let data1 = req.query.name
+try{let data1 = req.query.name
 if(!data1){
     return res.status(400).send({status:false,msg:"please provide college name"})
 }
@@ -76,7 +76,10 @@ let interns=await internModel.find({collegeId:collegeId},{_id:1,updatedAt:0,crea
 college.interns=interns
 
 delete college._id
-res.status(200).send({data:college}) 
+res.status(200).send({data:college}) }
+catch(error){
+    res.status(500).send({status:false,msg:error.message})
+}
 
 }
 

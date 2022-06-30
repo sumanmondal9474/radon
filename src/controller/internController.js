@@ -11,7 +11,7 @@ const isValid = function (value) {
 
 
 let createInterns = async function (req, res) {
-  
+  try{
 
     let bodyData = req.body
      
@@ -74,6 +74,11 @@ let createInterns = async function (req, res) {
     return res.status(201).send({ status: true, data: data })
   
 }
+catch(error){
+  res.status(500).send({status:false,msg:error.message})
+}
+}
+
 
 
 
