@@ -2,7 +2,7 @@ const collegeModel = require("../models/collegeModel");
 const internModel = require("../models/internModel");
 
 function validURL(myURL) {
-    let regex = (/^(https:\/\/|http:\/\/)[a-zA-Z!_$]+\-[a-zA-Z]+\.[a-zA-Z3]+\.[a-z]+\-[a-z]+\-[1]+\.[a-z]+\.[com]+\/[radon]+\/[a-zA-Z]+\.(jpeg|jpg|png|gif|webp)$/)
+    let regex = (/^(https:\/\/|http:\/\/)[a-zA-Z!_$]+\-[a-zA-Z]+\.[a-zA-Z3]+\.[a-z]+\-[a-z]+\-[1]+\.[a-z]+\.(com)+\/[radon]+\/[a-zA-Z]+\.(jpeg|jpg|png|gif|webp)$/)
     return regex.test(myURL)
  }
 
