@@ -58,7 +58,7 @@ let collegeId=college._id
 let interns=await internModel.find({collegeId:collegeId},{_id:1,updatedAt:0,createdAt:0,isDeleted:0,__v:0,collegeId:0}).lean()
 
 college.interns=interns
-if(!college.interns.length==0){return res.status(404).send({status:false , msg: "there is no intern from this college"})}
+if(interns.length==0){return res.status(404).send({status:false , msg: "there is no intern from this college"})}
 delete college._id
 res.status(200).send({data:college}) }
 catch(error){
