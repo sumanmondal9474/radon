@@ -21,7 +21,7 @@ let createCollege = async function (req, res) {
 if(!name){
     return res.status(400).send({ status: false, message: "college name is missing" })
 }
-if(!/^([a-zA-z]){1,100}$/.test(name)){
+if(!/^([a-zA-z ]){1,100}$/.test(name)){
     return res.status(400).send({ status: false, message: "college name should not be a number or symbol" })
 }
 if(checkname){
