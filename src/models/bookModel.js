@@ -1,4 +1,4 @@
-const mongoose=require('express')
+const mongoose= require('mongoose')
 const ObjectId=mongoose.Schema.Types.ObjectId
 
 const bookSchema=new mongoose.Schema({
@@ -16,7 +16,7 @@ const bookSchema=new mongoose.Schema({
     userId:{
         type:ObjectId,
         ref:'User',
-        required:true,
+        required:true
     },
     ISBN:{
         type:String,
@@ -25,16 +25,16 @@ const bookSchema=new mongoose.Schema({
         trim:true
     },
     category:{
-        type:string,
+        type:String,
         required:'Please enter the category'
     },
     subcategory:{
-        type:string,
+        type:String,
         required:'Please enter the category'
     },
     reviews:{
         type:Number,
-        default:0,
+        default:0
     },
     deletedAT:{
         type:Date,
