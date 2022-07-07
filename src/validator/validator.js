@@ -38,6 +38,13 @@ const isValidpassword = function (password) {
     }
     return false
 }
+const isValidISBN =function(ISBN){
+    let checkISBN= /^(?=(?:\D*\d){13}(?:(?:\D*\d){3})?$)[\d-]+$/
+    if(checkISBN.test(ISBN)){
+        return true
+    }
+    return false
+}
 
 module.exports = {
     isvalidRequestBody,
@@ -45,8 +52,8 @@ module.exports = {
     isValidMobileNumber,
     isValidEmail,
     isValidObjectId,
-    isValidpassword
+    isValidpassword,
+    isValidISBN
 }
 
 
-// .has().uppercase().has().lowercase().has().digits(2).has().not().spaces().is().not().oneOf(['Passw0rd', 'Password123', 'mypassword']

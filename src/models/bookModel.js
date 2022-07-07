@@ -1,5 +1,6 @@
 const mongoose= require('mongoose')
 const ObjectId=mongoose.Schema.Types.ObjectId
+const moment =require('moment')
 
 const bookSchema=new mongoose.Schema({
     title:{
@@ -29,7 +30,7 @@ const bookSchema=new mongoose.Schema({
         required:'Please enter the category'
     },
     subcategory:{
-        type:String,
+        type:[String],
         required:'Please enter the category'
     },
     reviews:{
@@ -47,7 +48,8 @@ const bookSchema=new mongoose.Schema({
     releasedAt:{
         type:Date,
         required:true,
-        pattern: "^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$"
+        default: moment(new Date(), "YYYY/MM/DD")
+       
     }
 
 },{timestamps:true});

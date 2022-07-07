@@ -32,7 +32,7 @@ const createUser = async function (req, res) {
         if (!Validator.isValidBody(password)) { return res.status(400).send({ status: false, msg: 'Please enter the password' }) }
         // to validate the password in given length
         if (!Validator.isValidpassword(password)) { return res.status(400).send({ status: false, msg: "password should be have minimum 8 character and max 15 character" }) }
-
+        // validation ends
 
         const newUser = { title, name, phone, email, password, address }
         // to create the user
@@ -75,7 +75,7 @@ const loginUser = async function (req, res) {
     res.status(200).send({
         status:true,
         message:'Success',
-        token:token
+        token:token,
     })
 }
 
