@@ -13,5 +13,7 @@ router.post('/register',UserController.createUser)
 router.post('/login',UserController.loginUser)
 router.post('/books',BookController.createBook)
 router.get('/books',BookController.getBooks)
+router.get('/books/:bookId',BookController.getbookparam)
+router.put('/books/:bookId',BookController.updateBooksById)
 
 module.exports=router;
