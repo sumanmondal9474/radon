@@ -73,12 +73,6 @@ const getBooks = async function (req, res) {
                 }
                 obj.userId = userId;
             }
-            //   else {
-            //     return res
-            //       .status(400)
-            //       .send({ status: false, message: "UserId is required" });
-            //   }
-
             if (category && Validator.isValidBody(category)) {
                 obj.category = category;
             }
@@ -87,7 +81,6 @@ const getBooks = async function (req, res) {
                 obj.subcategory = { $in: subcategory };
             }
         }
-        // console.log(obj);
         let find = await BookModel.find(obj).select({ title: 1, ISBN: 1, category: 1, releasedAt: 1, reviews: 1, }).sort({ title: 1 })
         if (find.length == 0) { return res.status(404).send({ status: false, message: "No such book found" }) }
         res.status(200).send({
@@ -117,7 +110,7 @@ const getbookparam = async function (req, res) {
         if (!dbcall) return res.status(400).send({ status: false, message: "This bookId not found" })
 
 
-        let dbcell = await ReviewModel.find({ bookId: result })
+        let dbcell = await ReviewModel.find({ bookId: result,isDeleted:false })
 
         // destructured and stored the values 
         let dcall =
@@ -196,32 +189,40 @@ const updateBooksById = async function (req, res) {
     }
 }
 
+const deleteBooksById = async function (req, res) {
+try{
+    // taking bookid from params
+    let result = req.params.bookId
+    if (!result) { return res.status(400).send({ status: false, message: "Please enter bookId" }) }
+    // to validate the bookId is valid or not 
+    if (!Validator.isValidObjectId(result)) { return res.status(400).send({ status: false, message: "Please enter valid bookId" }) }
+    // to check the bookID in database
+    let dbcall = await BookModel.findOne({ _id: result, isDeleted: false })
+    // console.log(dbcall)
+    if (!dbcall) return res.status(404).send({ status: false, message: "bookId not found or book is already deleted" })
+
+    const deletedBook=await BookModel.findOneAndUpdate({_id:result},{isDeleted:true},{new: true})
+    return res.status(201).send({
+        status:true,
+        message:'Book Deleted successfully',
+        data:deletedBook
+    })
+
+} catch (err) {
+    res.status(500).send({
+        status: false,
+        message: err.message
+    })
+}
+}
+
 
 module.exports = {
     createBook,
     getBooks,
     getbookparam,
-    updateBooksById
+    updateBooksById,
+    deleteBooksById
 }
 
 
-
-// let userId = req.query.userId
-//         let category = req.query.category
-//         let subcategory = req.query.subcategory
-
-//         let obj = {
-//             isDeleted: false,
-//         }
-//         if (userId) {
-//             obj.userId = userId
-//         }
-//         if (category) {
-//             obj.category = category
-//         }
-//         if (subcategory) {
-//             obj.subcategory = subcategory
-//         }
-//         if (Object.keys(obj).length == 0) {
-//             return res.status(400).send({ status: false, msg: "Please enter the query" })
-//         }
