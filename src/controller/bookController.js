@@ -108,8 +108,7 @@ const getbookparam = async function (req, res) {
         // to check the bookId in database
         let dbcall = await BookModel.findOne({ _id: result })
         if (!dbcall) return res.status(400).send({ status: false, message: "This bookId not found" })
-
-
+        
         let dbcell = await ReviewModel.find({ bookId: result,isDeleted:false })
 
         // destructured and stored the values 
@@ -129,7 +128,6 @@ const getbookparam = async function (req, res) {
             "reviewsData": dbcell
 
         }
-
         // to return all books data with details
         return res.status(200).send({ status: true, message: " Books list", data: dcall })
 

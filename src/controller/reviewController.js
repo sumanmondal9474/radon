@@ -85,7 +85,6 @@ const updateReview = async function (req, res) {
         if (!Validator.isValidObjectId(bookId)) { return res.status(400).send({ status: false, message: "Please enter valid bookId" }) }
         // to check the bookID in database
         let findBook = await BookModel.findOne({ _id: bookId, isDeleted: false })
-        // console.log(dbcall)
         if (!findBook) return res.status(404).send({ status: false, message: "bookId not found" })
         // taking reviewId from params
         let reviewId = req.params.reviewId
@@ -94,6 +93,8 @@ const updateReview = async function (req, res) {
         if (!Validator.isValidObjectId(reviewId)) { return res.status(400).send({ status: false, message: "Please enter valid reviewId" }) }
         // to check the bookID in database
         let findReview = await ReviewModel.findOne({ _id: reviewId, isDeleted: false })
+        console.log(findReview)
+        if(bookId != findReview.bookId)return res.status(404).send({ status: false, message: "reviewId is not of this Book Id" })
         // console.log(dbcall)
         if (!findReview) return res.status(404).send({ status: false, message: "reviewId not found" })
 
@@ -161,14 +162,13 @@ const deleteReview = async function (req, res) {
          if (!Validator.isValidObjectId(bookId)) { return res.status(400).send({ status: false, message: "Please enter valid bookId" }) }
          // to check the bookID in database
          let findBook = await BookModel.findOne({ _id: bookId, isDeleted: false })
-         // console.log(dbcall)
          if (!findBook) return res.status(404).send({ status: false, message: "bookId not found" })
          // taking reviewId from params
          let reviewId = req.params.reviewId
          if (!reviewId) { return res.status(400).send({ status: false, message: "Please enter reviewId" }) }
          // to validate the reviewId is valid or not 
          if (!Validator.isValidObjectId(reviewId)) { return res.status(400).send({ status: false, message: "Please enter valid reviewId" }) }
-         // to check the bookID in database
+         // to check the reviewId in database
          let findReview = await ReviewModel.findOne({ _id: reviewId, isDeleted: false })
          // console.log(dbcall)
          if (!findReview) return res.status(404).send({ status: false, message: "reviewId not found" })
