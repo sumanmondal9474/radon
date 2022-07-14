@@ -13,7 +13,7 @@ const userSchema= new mongoose.Schema({
         trim:true
     },
     phone:{
-        type:String,
+        type:String, 
         required:'Please enter the phone number',
         unique: true,
         trim:true
@@ -31,18 +31,9 @@ const userSchema= new mongoose.Schema({
         trim:true
     },
     address:{
-        street: {
-            type:String,
-            trim:true
-        },
-        city:{
-            type:String,
-            trim:true
-        },
-        pincode:{
-            type:String,
-            trim:true
-        }
+        street: String,
+        city:String,
+        pincode:String      
     }
 },{timestamps:true});
 

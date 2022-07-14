@@ -34,7 +34,7 @@ const authorise =async function (req, res, next) {
         let bookUser = req.params.bookId
         if (bookUser === ":bookId") return res.status(400).send({ status: false, msg: "Please enter bookId" })
         let findBookUser=await BookModel.findOne({_id:bookUser})
-        if (!findBookUser) return res.status(402).send({ status: false, msg: "Please enter valid bookId" })
+        if (!findBookUser) return res.status(404).send({ status: false, msg: "Please enter valid bookId" })
         // to find the user id through the bookId
         let findUser = await UserModel.findOne({_id:findBookUser.userId})
         // if (!findUser) return res.status(402).send({ status: false, msg: "Please enter valid bookId" })

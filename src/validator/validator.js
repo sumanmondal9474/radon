@@ -6,10 +6,11 @@ const ObjectId = mongoose.Types.ObjectId;
 
 const isvalidRequestBody = function (value) {
     return Object.keys(value).length > 0
-}
+}   
 const isValidBody = function (value) {
     if (typeof value === 'undefined' || value === 'null') return false
     if (typeof value === 'string' && value.trim().length === 0) return false
+    if (typeof value === 'number' && value.toString().trim().length === 0) return false
     return true
 }
 const isValidMobileNumber = function (mobile) {
@@ -27,7 +28,7 @@ const isValidEmail = function (email) {
     return false;
 }
 const isValidObjectId = function (userId) {
-    return mongoose.isValidObjectId(userId)
+    return mongoose.Types.ObjectId.isValid(userId)
 }
 
 const isValidpassword = function (password) {
@@ -38,9 +39,18 @@ const isValidpassword = function (password) {
     }
     return false
 }
-const isValidISBN =function(ISBN){
-    let checkISBN= /^(?=(?:\D*\d){13}(?:(?:\D*\d){3})?$)[\d-]+$/
-    if(checkISBN.test(ISBN)){
+const isValidISBN = function (ISBN) {
+    let checkISBN = /^(?=(?:\D*\d){13}(?:(?:\D*\d){3})?$)[\d-]+$/
+    if (checkISBN.test(ISBN)) {
+        return true
+    }
+    return false
+}
+
+const isValidDate=function(date){
+
+    let checkDate=/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/
+    if(checkDate.test(date)){
         return true
     }
     return false
@@ -53,7 +63,8 @@ module.exports = {
     isValidEmail,
     isValidObjectId,
     isValidpassword,
-    isValidISBN
+    isValidISBN,
+    isValidDate
 }
 
 

@@ -1,5 +1,5 @@
 const mongoose= require('mongoose')
-const ObjectId=mongoose.Schema.Types.ObjectId
+const ObjectId=mongoose.Types.ObjectId
 const moment =require('moment')
 
 const bookSchema=new mongoose.Schema({
@@ -49,7 +49,6 @@ const bookSchema=new mongoose.Schema({
         type:Date,
         required:true,
         default: moment(new Date(), "YYYY/MM/DD")
-       
     }
 
 },{timestamps:true});
