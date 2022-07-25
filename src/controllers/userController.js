@@ -10,18 +10,13 @@ const createUser = async function(req, res) {
 
         final.profileImage = req.swap
 
-        const { fname, lname, email, phone, password, address } = req.body
-
-        const { shipping, billing } = JSON.parse(address)
-        console.log(JSON.parse(address))
-        console.log(shipping)
-        console.log(billing)
+        const { fname, lname, email, phone, password } = req.body
 
         if (valid.isValidBody(req.body)) {
             return res.status(400).send({ status: false, message: "Kindly enter all the required details." })
         }
 
-        console.log(fname)
+
         if (!valid.isValidString(fname)) {
             return res.status(400).send({ status: false, message: "fname not mentioned or not in correct format." })
         }
@@ -74,8 +69,7 @@ const createUser = async function(req, res) {
         // }
         const salt = await bcrypt.genSalt(4)
         const hash = await bcrypt.hash(password, salt)
-        console.log(hash)
-        final["password"] = hash
+        final.password = hash
             // console.log("1st", final)
             // bcrypt.genSalt(saltRounds, function(saltError, salt) {
             //         if (saltError) {
@@ -93,8 +87,22 @@ const createUser = async function(req, res) {
             //     })
             //  final.password = password
 
+        if (Object.keys(req.body.address).length == 0) {
+            return res.status(400).send({ status: true, message: "Address is mandatory." })
+        }
 
-        console.log("2nd", final)
+        let address = JSON.parse(req.body.address)
+        if (typeof address !== 'object') {
+            return res.status(400).send({ status: true, message: "Address is Invalid." })
+        }
+
+        if (Object.keys(address.shipping).length == 0) {
+            return res.status(400).send({ status: true, message: "Shipping Address is mandatory." })
+        }
+        if (Object.keys(address.billing).length == 0) {
+            return res.status(400).send({ status: true, message: "Billing Address is mandatory." })
+        }
+
         const checkAddress = function(value) {
 
             if (valid.isValidBody(value)) {
@@ -117,12 +125,10 @@ const createUser = async function(req, res) {
                 return res.status(400).send({ status: false, message: `${value} Address Pincode is not valid. ` })
             }
 
-            // final.address.value = { street: street, city: city, pincode: pincode }
+            return true
         }
-
-        checkAddress(shipping)
-        checkAddress(billing)
-        console.log(address)
+        checkAddress(address.shipping)
+        checkAddress(address.billing)
         final.address = address
 
         console.log(final)
