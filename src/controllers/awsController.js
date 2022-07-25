@@ -23,7 +23,6 @@ let uploadFile = async(file) => {
             if (err) {
                 return reject({ "error": err })
             }
-            console.log(data)
             console.log("File uploaded succesfully")
             return resolve(data.Location)
         })
@@ -36,6 +35,7 @@ const awsGenerator = async function(req, res, next) {
 
     try {
         let files = req.files
+        console.log(files)
         if (files && files.length > 0) {
 
             let uploadedFileURL = await uploadFile(files[0])

@@ -3,7 +3,7 @@ const router = express.Router()
 const { createUser, loginUser } = require('../controllers/userController')
 const { awsGenerator } = require('../controllers/awsController')
 
-router.post('/register', createUser)
+router.post('/register', awsGenerator, createUser)
 router.post('/login', loginUser)
     // router.get('/user/:userId/profile', getUser)
     // router.put('/user/:userId/profile', updateUser)
