@@ -1,144 +1,176 @@
 const userModel = require('../models/userModel')
 const valid = require('../middleware/validation')
 const bcrypt = require('bcrypt')
+const { Billingconductor } = require('aws-sdk')
 
 
 const createUser = async function(req, res) {
 
-    try {
-        let final = {}
+    //   try {
+    let final = {}
 
-        final.profileImage = req.swap
+    final.profileImage = req.swap
 
-        const { fname, lname, email, phone, password } = req.body
+    const { fname, lname, email, phone, password } = req.body
 
-        if (valid.isValidBody(req.body)) {
-            return res.status(400).send({ status: false, message: "Kindly enter all the required details." })
-        }
-
-
-        if (!valid.isValidString(fname)) {
-            return res.status(400).send({ status: false, message: "fname not mentioned or not in correct format." })
-        }
-        if (valid.validName.test(fname)) {
-            return res.status(400).send({ status: false, message: "fname not in correct format." })
-        }
-        final.fname = fname
-
-
-        if (!valid.isValidString(lname)) {
-            return res.status(400).send({ status: false, message: "lname not mentioned or not in correct format." })
-        }
-        if (valid.validName.test(lname)) {
-            return res.status(400).send({ status: false, message: "lname not in correct format." })
-        }
-        final.lname = lname
-
-
-        if (!valid.isValidString(email)) {
-            return res.status(400).send({ status: false, message: "Email not mentioned or not in correct format." })
-        }
-        if (!valid.validEmail.test(email)) {
-            return res.status(400).send({ status: false, message: "Email not valid." })
-        }
-        const duplicateEmail = await userModel.findOne({ email: email })
-        if (duplicateEmail) {
-            return res.status(400).send({ status: false, message: `${email} already registered.` })
-        }
-        final.email = email
-
-
-        if (!valid.isValidString(phone)) {
-            return res.status(400).send({ status: false, message: "Phone not mentioned or not in correct format." })
-        }
-        if (!valid.validPhone.test(phone)) {
-            return res.status(400).send({ status: false, message: `${phone} is not valid (Try Indian Number)` })
-        }
-        const duplicatePhone = await userModel.findOne({ phone: phone })
-        if (duplicatePhone) {
-            return res.status(400).send({ status: false, message: `${phone} already registered.` })
-        }
-        final.phone = phone
-
-
-        if (!valid.isValidString(password)) {
-            return res.status(400).send({ status: false, message: "Password not mentioned or not in correct format" })
-        }
-        // if (!valid.validPassword.test(password)) {
-        //     return res.status(400).send({ status: false, message: `The ${password} is not Strong (Length between 8-15)` })
-        // }
-        const salt = await bcrypt.genSalt(4)
-        const hash = await bcrypt.hash(password, salt)
-        final.password = hash
-            // console.log("1st", final)
-            // bcrypt.genSalt(saltRounds, function(saltError, salt) {
-            //         if (saltError) {
-            //             throw saltError
-            //         } else {
-            //             bcrypt.hash(password, salt, function(hashError, hash) {
-            //                 if (hashError) {
-            //                     throw hashError
-            //                 } else {
-            //                     console.log("Password", hash)
-            //                     final["password"] = hash
-            //                 }
-            //             })
-            //         }
-            //     })
-            //  final.password = password
-
-        if (Object.keys(req.body.address).length == 0) {
-            return res.status(400).send({ status: true, message: "Address is mandatory." })
-        }
-
-        let address = JSON.parse(req.body.address)
-        if (typeof address !== 'object') {
-            return res.status(400).send({ status: true, message: "Address is Invalid." })
-        }
-
-        if (Object.keys(address.shipping).length == 0) {
-            return res.status(400).send({ status: true, message: "Shipping Address is mandatory." })
-        }
-        if (Object.keys(address.billing).length == 0) {
-            return res.status(400).send({ status: true, message: "Billing Address is mandatory." })
-        }
-
-        const checkAddress = function(value) {
-
-            if (valid.isValidBody(value)) {
-                return res.status(400).send({ status: false, message: `OPPS!!You Forot to enter ${value} Address.` })
-            }
-
-
-            const { street, city, pincode } = value
-
-            if (!valid.isValidString(street)) {
-                return res.status(400).send({ status: false, message: `${value} Address Street is not mentiond or not valid.` })
-            }
-            if (!valid.isValidString(city)) {
-                return res.status(400).send({ status: false, message: `${value} Address City is not mentiond or not valid.` })
-            }
-            if (!valid.isValidNumber(pincode)) {
-                return res.status(400).send({ status: false, message: `${value} Address Pincode is not mentiond or not valid.` })
-            }
-            if (!pincode) {
-                return res.status(400).send({ status: false, message: `${value} Address Pincode is not valid. ` })
-            }
-
-            return true
-        }
-        checkAddress(address.shipping)
-        checkAddress(address.billing)
-        final.address = address
-
-        console.log(final)
-
-        const createUser = await userModel.create(final)
-        return res.status(201).send({ status: true, message: "User created successfully", data: createUser })
-
-    } catch (err) {
-        res.status(500).send({ status: false, message: err.message })
+    if (valid.isValidBody(req.body)) {
+        return res.status(400).send({ status: false, message: "Kindly enter all the required details." })
     }
+
+
+    if (!valid.isValidString(fname)) {
+        return res.status(400).send({ status: false, message: "fname not mentioned or not in correct format." })
+    }
+    if (valid.validName.test(fname)) {
+        return res.status(400).send({ status: false, message: "fname not in correct format." })
+    }
+    final.fname = fname
+
+
+    if (!valid.isValidString(lname)) {
+        return res.status(400).send({ status: false, message: "lname not mentioned or not in correct format." })
+    }
+    if (valid.validName.test(lname)) {
+        return res.status(400).send({ status: false, message: "lname not in correct format." })
+    }
+    final.lname = lname
+
+
+    if (!valid.isValidString(email)) {
+        return res.status(400).send({ status: false, message: "Email not mentioned or not in correct format." })
+    }
+    if (!valid.validEmail.test(email)) {
+        return res.status(400).send({ status: false, message: "Email not valid." })
+    }
+    const duplicateEmail = await userModel.findOne({ email: email })
+    if (duplicateEmail) {
+        return res.status(400).send({ status: false, message: `${email} already registered.` })
+    }
+    final.email = email
+
+
+    if (!valid.isValidString(phone)) {
+        return res.status(400).send({ status: false, message: "Phone not mentioned or not in correct format." })
+    }
+    if (!valid.validPhone.test(phone)) {
+        return res.status(400).send({ status: false, message: `${phone} is not valid (Try Indian Number)` })
+    }
+    const duplicatePhone = await userModel.findOne({ phone: phone })
+    if (duplicatePhone) {
+        return res.status(400).send({ status: false, message: `${phone} already registered.` })
+    }
+    final.phone = phone
+
+
+    if (!valid.isValidString(password)) {
+        return res.status(400).send({ status: false, message: "Password not mentioned or not in correct format" })
+    }
+    // if (!valid.validPassword.test(password)) {
+    //     return res.status(400).send({ status: false, message: `The ${password} is not Strong (Length between 8-15)` })
+    // }
+    const salt = await bcrypt.genSalt(4)
+    const hash = await bcrypt.hash(password, salt)
+    final.password = hash
+        // console.log("1st", final)
+        // bcrypt.genSalt(saltRounds, function(saltError, salt) {
+        //         if (saltError) {
+        //             throw saltError
+        //         } else {
+        //             bcrypt.hash(password, salt, function(hashError, hash) {
+        //                 if (hashError) {
+        //                     throw hashError
+        //                 } else {
+        //                     console.log("Password", hash)
+        //                     final["password"] = hash
+        //                 }
+        //             })
+        //         }
+        //     })
+        //  final.password = password
+
+    if (valid.isValidBody(req.body.address)) {
+        return res.status(400).send({ status: true, message: "Address is mandatory." })
+    }
+
+    let address = JSON.parse(req.body.address)
+    if (typeof address !== 'object') {
+        return res.status(400).send({ status: true, message: "Address is Invalid." })
+    }
+
+    if (valid.isValidBody(address.shipping)) {
+        return res.status(400).send({ status: false, message: `OPPS!!You Forot to enter Shipping Address.` })
+    }
+    if (address.shipping) {
+
+        const { street, city, pincode } = address.shipping
+
+        if (!valid.isValidString(street)) {
+            return res.status(400).send({ status: false, message: `Shipping Address Street is not mentiond or not valid.` })
+        }
+        if (!valid.isValidString(city)) {
+            return res.status(400).send({ status: false, message: `Shipping Address City is not mentiond or not valid.` })
+        }
+        if (!valid.isValidNumber(pincode)) {
+            return res.status(400).send({ status: false, message: `Shipping Address Pincode is not mentiond or not valid.` })
+        }
+        if (!pincode) {
+            return res.status(400).send({ status: false, message: `Shipping Address Pincode is not valid. ` })
+        }
+    }
+    // console.log(Object.keys(address.billing))
+    if (Object.keys(address.billing).length == 0) {
+        return res.status(400).send({ status: false, message: `OPPS!!You Forot to enter Billing Address.` })
+    }
+
+    if (address.billing) {
+        const { street, city, pincode } = address.billing
+
+        if (!valid.isValidString(street)) {
+            return res.status(400).send({ status: false, message: `Billing Address Street is not mentiond or not valid.` })
+        }
+        if (!valid.isValidString(city)) {
+            return res.status(400).send({ status: false, message: `Billing Address City is not mentiond or not valid.` })
+        }
+        if (!valid.isValidNumber(pincode)) {
+            return res.status(400).send({ status: false, message: `Billing Address Pincode is not mentiond or not valid.` })
+        }
+        if (!pincode) {
+            return res.status(400).send({ status: false, message: `Billing Address Pincode is not valid. ` })
+        }
+    }
+    // const checkAddress = function(value) {
+
+    //     if (valid.isValidBody(value)) {
+    //         return res.status(400).send({ status: false, message: `OPPS!!You Forot to enter Address.` })
+    //     }
+
+    //     console.log(value)
+    //     const { street, city, pincode } = value
+
+    //     if (!valid.isValidString(street)) {
+    //         return res.status(400).send({ status: false, message: `Address Street is not mentiond or not valid.` })
+    //     }
+    //     if (!valid.isValidString(city)) {
+    //         return res.status(400).send({ status: false, message: `Address City is not mentiond or not valid.` })
+    //     }
+    //     if (!valid.isValidNumber(pincode)) {
+    //         return res.status(400).send({ status: false, message: `Address Pincode is not mentiond or not valid.` })
+    //     }
+    //     if (!pincode) {
+    //         return res.status(400).send({ status: false, message: `Address Pincode is not valid. ` })
+    //     }
+    // }
+    // checkAddress(address.shipping)
+    // checkAddress(address.billing)
+
+    final.address = address
+    console.log(final)
+    const createUser = await userModel.create(final)
+    return res.status(201).send({ status: true, message: "User created successfully", data: createUser })
+
+    // } catch (err) {
+    //     res.status(500).send({ status: false, message: err.message })
+    // }
 }
 
 
