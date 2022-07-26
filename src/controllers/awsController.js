@@ -42,7 +42,8 @@ const awsGenerator = async function(req, res, next) {
             req.swap = uploadedFileURL
             next()
         } else {
-            res.status(400).send({ msg: "No file found" })
+            res.status(400).send({ status: false, message: "No file found" })
+            next()
         }
 
     } catch (err) {
@@ -51,4 +52,5 @@ const awsGenerator = async function(req, res, next) {
 
 }
 
+module.exports.uploadFile = uploadFile
 module.exports.awsGenerator = awsGenerator
