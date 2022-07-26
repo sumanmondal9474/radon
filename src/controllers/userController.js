@@ -88,11 +88,11 @@ const createUser = async function(req, res) {
         if (typeof address !== 'object') {
             return res.status(400).send({ status: true, message: "Address is Invalid." })
         }
-        console.log(final)
+
         console.log(Object.keys(address.shipping))
 
-        if (Object.keys(address.shipping).length == 0) {
-            return res.status(400).send({ status: false, message: `OPPS!!You Forot to enter Shipping Address.` })
+        if (Object.keys(address.shipping)[0] == 0 || Object.keys(address.shipping).length == 0) {
+            return res.status(400).send({ status: false, message: `OPPS!!You Forgot to enter Shipping Address.` })
         }
         if (address.shipping) {
 
@@ -112,8 +112,8 @@ const createUser = async function(req, res) {
             }
         }
 
-        if (Object.keys(address.billing).length == 0) {
-            return res.status(400).send({ status: false, message: `OPPS!!You Forot to enter Billing Address.` })
+        if (Object.keys(address.billing)[0] == 0 || Object.keys(address.billing).length == 0) {
+            return res.status(400).send({ status: false, message: `OPPS!!You Forgot to enter Billing Address.` })
         }
 
         if (address.billing) {
