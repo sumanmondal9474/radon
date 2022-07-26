@@ -2,12 +2,13 @@ const express = require('express')
 const router = express.Router()
 const { createUser, loginUser, getUser, updateUser } = require('../controllers/userController')
 const { awsGenerator } = require('../controllers/awsController')
+const { authentication, authorization } = require('../middleware/auth')
 
 router.post('/register', awsGenerator, createUser)
 router.post('/login', loginUser)
-router.get('/user/:userId/profile', getUser)
-router.put('/user/:userId/profile', updateUser)
-
+router.get('/user/:userId/profile', authentication, authorization, getUser)
+router.put('/user/:userId/profile', authentication, authorization, updateUser)
+    //router.get('/auth/:userId', authentication, authorization)
 router.all("/**", function(req, res) {
     res.status(404).send({
         status: false,

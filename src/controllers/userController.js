@@ -310,25 +310,31 @@ const updateUser = async(req, res) => {
             if (Object.keys(address).length == 0) {
                 return res.status(400).send({ status: true, message: "Address is mandatory." })
             }
+
             address = JSON.parse(address)
-            console.log(address.shipping)
+
             if (address.shipping) {
                 let { street, city, pincode } = address.shipping
-                console.log(street)
-                console.log(city)
+
                 if (street !== undefined) {
                     if (!valid.isValidString(street)) {
                         return res.status(400).send({ status: true, message: "Street to update is not valid." })
                     }
                 }
                 console.log("Ok")
-                final["address"]["shipping"]["street"] = address.shipping.street
+                console.log(address.shipping.street)
                 console.log(final)
+                let shipping = {}
+
+                shipping = { $set: { street: street } }
+
+                console.log(address1)
                 if (city) {
                     if (!valid.isValidString(city)) {
                         return res.status(400).send({ status: true, message: "City to update is not valid." })
                     }
                 }
+                address1 = { $set: { "shipping.$.street": street } }
                 if (pincode) {
                     if (!valid.isValidNumber(pincode)) {
                         return res.status(400).send({ status: true, message: "Pincode to update is not valid." })
