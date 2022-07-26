@@ -215,14 +215,14 @@ const getUser = async(req, res) => {
     try {
         let userId = req.params.userId
 
-        if (!valid.isValidObjectId(userId)) {
-            return res.status(400).send({ status: false, message: "UserId not valid" })
-        }
+        // if (!valid.isValidObjectId(userId)) {
+        //     return res.status(400).send({ status: false, message: "UserId not valid" })
+        // }
         let checkUser = await userModel.findById(userId)
 
-        if (!checkUser) {
-            return res.status(404).send({ status: false, message: "User not exist" })
-        }
+        // if (!checkUser) {
+        //     return res.status(404).send({ status: false, message: "User not exist" })
+        // }
 
         return res.status(200).send({ status: true, data: checkUser })
 
@@ -234,139 +234,232 @@ const getUser = async(req, res) => {
 
 const updateUser = async(req, res) => {
     try {
-        let data = req.body;
-        let { fname, lname, email, profileImage, phone, password, address, ...rest } = data;
 
+        let { fname, lname, email, profileImage, phone, password, shipping, billing, ...rest } = req.body
         let userId = req.params.userId;
 
+        let final = {}
+
         let files = req.files
-        console.log(files)
         if (files && files.length > 0) {
             let url = await aws.uploadFile(files[0])
-            data.profileImages = url
+            final.profileImages = url
         }
 
         if (Object.keys(rest).length > 0) {
             return res.status(400).send({ status: false, message: "Field Doesn't Exist" })
         }
 
-        if (Object.keys(data).length == 0) {
+        if (Object.keys(req.body).length == 0) {
             return res.status(400).send({ status: false, message: "Please enter some DETAILS!!!" })
         }
 
-        if (userId && !valid.isValidObjectId(userId)) {
-            return res.status(400).send({ status: false, msg: "UserId is Invalid" })
-        }
-        let userdata = await userModel.findOne({ _id: userId })
+        // if (userId && !valid.isValidObjectId(userId)) {
+        //     return res.status(400).send({ status: false, msg: "UserId is Invalid" })
+        // }
+        // let userdata = await userModel.findOne({ _id: userId })
 
-        if (!userdata) return res.status(404).send({ status: false, message: "No user found." })
+        // if (!userdata) return res.status(404).send({ status: false, message: "No user found." })
 
 
         if (fname) {
-            if (!valid.isValidString(fname)) return res.status(400).send({ status: false, message: "invalid fname details" });
-            if (!valid.validName.test(fname)) return res.status(400).send({ status: false, message: "fname should be in proper format!!!" });
+            if (!valid.isValidString(fname)) {
+                return res.status(400).send({ status: false, message: "invalid fname details" });
+            }
+            if (!valid.validName.test(fname)) {
+                return res.status(400).send({ status: false, message: "fname should be in proper format!!!" });
+            }
+            final.fname = fname
         }
 
 
         if (lname) {
-            if (!valid.isValidString(lname)) return res.status(400).send({ status: false, message: "invalid lname details" });
-            if (!valid.validName.test(lname)) return res.status(400).send({ status: false, message: "lname  should be in proper format!!!" });
+            if (!valid.isValidString(lname)) {
+                return res.status(400).send({ status: false, message: "invalid lname details" });
+            }
+            if (!valid.validName.test(lname)) {
+                return res.status(400).send({ status: false, message: "lname  should be in proper format!!!" });
+            }
+            final.lname = lname
         }
 
 
         if (email) {
-            if (!valid.isValidString(email)) return res.status(400).send({ status: false, message: "invalid email details" });
-            if (!valid.validEmail.test(email)) return res.status(400).send({ status: false, message: "email  should be in proper format!!!" });
+            if (!valid.isValidString(email)) {
+                return res.status(400).send({ status: false, message: "invalid email details" });
+            }
+            if (!valid.validEmail.test(email)) {
+                return res.status(400).send({ status: false, message: "email  should be in proper format!!!" });
+            }
             let uniqueEmail = await userModel.findOne({ email: email })
-            if (uniqueEmail) return res.status(400).send({ status: false, message: "Email already exist" })
+            if (uniqueEmail) {
+                return res.status(400).send({ status: false, message: "Email already exist" })
+            }
+            final.email = email
         }
 
 
         if (phone) {
-            if (!valid.isValidString(phone)) return res.status(400).send({ status: false, message: "invalid phone details" });
-            if (!valid.validPhone.test(phone)) return res.status(400).send({
-                status: false,
-                message: `${phone} should be in proper format!!!`
-            });
+            if (!valid.isValidString(phone)) {
+                return res.status(400).send({ status: false, message: "invalid phone details" });
+            }
+            if (!valid.validPhone.test(phone)) {
+                return res.status(400).send({ status: false, message: `${phone} not in correct format.` })
+            }
             let uniquePhone = await userModel.findOne({ phone: phone })
-            if (uniquePhone) return res.status(400).send({ status: false, message: "Phone Number already exist" })
+            if (uniquePhone) {
+                return res.status(400).send({ status: false, message: "Phone Number already exist" })
+            }
+            final.phone = phone
         }
 
 
         if (password) {
-            if (!valid.isValidString(password)) return res.status(400).send({ status: false, message: "Invalid password details" });
-            if (!valid.validPassword.test(password)) return res.status(400).send({
-                status: false,
-                message: `${password} should be in proper format!!!`
-            })
+            if (!valid.isValidString(password)) {
+                return res.status(400).send({ status: false, message: "Invalid password details" });
+            }
+            if (!valid.validPassword.test(password)) {
+                return res.status(400).send({ status: false, message: `${password} not in correct format.` })
+            }
             const salt = await bcrypt.genSalt(10)
             const hash = await bcrypt.hash(password, salt)
-            data.password = hash
+            final.password = hash
         }
 
+        if (shipping && billing) {
+            console.log("Ok")
 
-        let final = {}
-        if (address) {
-            if (Object.keys(address).length == 0) {
-                return res.status(400).send({ status: true, message: "Address is mandatory." })
+            shipping = JSON.parse(shipping)
+            console.log(shipping)
+            let a = await userModel.findOne({ _id: userId })
+            let copy = a.address.shipping
+            let updateShippingAddress = {...copy }
+
+            if (shipping.street) {
+                if (!valid.isValidString(shipping.street)) {
+                    return res.status(400).send({ status: false, message: "Shipping Address Street not in correct format." })
+                }
+                updateShippingAddress.street = shipping.street
+            }
+            if (shipping.city) {
+                if (!valid.isValidString(shipping.city)) {
+                    return res.status(400).send({ status: false, message: "Shipping Address City not in correct format." })
+                }
+                updateShippingAddress.city = shipping.city
+            }
+            if (shipping.pincode) {
+                if (!valid.isValidNumber(shipping.pincode)) {
+                    return res.status(400).send({ status: false, message: "Shipping Address Pincode not in correct format." })
+                }
+                if (!valid.validPincode.test(shipping.pincode)) {
+                    return res.status(400).send({ status: false, message: "Shipping Address Pincode not valid." })
+                }
+                updateShippingAddress.pincode = shipping.pincode
             }
 
-            address = JSON.parse(address)
+            billing = JSON.parse(billing)
+            console.log(billing)
 
-            if (address.shipping) {
-                let { street, city, pincode } = address.shipping
+            let b = await userModel.findOne({ _id: userId })
+            let copy1 = b.address.billing
+            let updateBillingAddress = {...copy1 }
 
-                if (street !== undefined) {
-                    if (!valid.isValidString(street)) {
-                        return res.status(400).send({ status: true, message: "Street to update is not valid." })
-                    }
+            if (billing.street) {
+                if (!valid.isValidString(billing.street)) {
+                    return res.status(400).send({ status: false, message: "Billing Address Street not in correct format." })
                 }
-                console.log("Ok")
-                console.log(address.shipping.street)
-                console.log(final)
-                let shipping = {}
-
-                shipping = { $set: { street: street } }
-
-                console.log(address1)
-                if (city) {
-                    if (!valid.isValidString(city)) {
-                        return res.status(400).send({ status: true, message: "City to update is not valid." })
-                    }
-                }
-                address1 = { $set: { "shipping.$.street": street } }
-                if (pincode) {
-                    if (!valid.isValidNumber(pincode)) {
-                        return res.status(400).send({ status: true, message: "Pincode to update is not valid." })
-                    }
-
-                    if (!valid.validPincode.test(pincode)) return res.status(400).send({ status: false, message: "Pincode should be six digit only" })
-
-                }
+                updateBillingAddress.street = billing.street
             }
-            if (address.billing) {
-                let { street, city, pincode } = address.billing
-                if (street) {
-                    if (!valid.isValidString(street)) {
-                        return res.status(400).send({ status: true, message: "Street to update is not valid." })
-                    }
+            if (billing.city) {
+                if (!valid.isValidString(billing.city)) {
+                    return res.status(400).send({ status: false, message: "Billing Address City not in correct format." })
                 }
-                if (city) {
-                    if (!valid.isValidString(city)) {
-                        return res.status(400).send({ status: true, message: "City to update is not valid." })
-                    }
+                updateBillingAddress.city = billing.city
+            }
+            if (billing.pincode) {
+                if (!valid.isValidNumber(billing.pincode)) {
+                    return res.status(400).send({ status: false, message: "Billing Address Pincode not in correct format." })
                 }
-                if (pincode) {
-                    if (!valid.isValidNumber(pincode)) {
-                        return res.status(400).send({ status: true, message: "Pincode to update is not valid." })
-                    }
+                if (!valid.validPincode.test(billing.pincode)) {
+                    return res.status(400).send({ status: false, message: "Billing Address Pincode not valid." })
+                }
+                updateBillingAddress.pincode = billing.pincode
+            }
 
-                    if (!valid.validPincode.test(pincode)) return res.status(400).send({ status: false, message: "Pincode should be six digit only" })
+            final["$set"] = { address: { billing: updateBillingAddress, shipping: updateShippingAddress } }
 
+        } else if (shipping || billing) {
+            if (shipping) {
+                shipping = JSON.parse(shipping)
+
+                let a = await userModel.findOne({ _id: userId })
+                let copyShipping = a.address.shipping
+                let copyBilling = a.address.billing
+                let updateShippingAddress = {...copyShipping }
+                let updateBillingAddress = {...copyBilling }
+
+                if (shipping.street) {
+                    if (!valid.isValidString(shipping.street)) {
+                        return res.status(400).send({ status: false, message: "Shipping Address Street not in correct format." })
+                    }
+                    updateShippingAddress.street = shipping.street
                 }
+                if (shipping.city) {
+                    if (!valid.isValidString(shipping.city)) {
+                        return res.status(400).send({ status: false, message: "Shipping Address City not in correct format." })
+                    }
+                    updateShippingAddress.city = shipping.city
+                }
+                if (shipping.pincode) {
+                    if (!valid.isValidNumber(shipping.pincode)) {
+                        return res.status(400).send({ status: false, message: "Shipping Address Pincode not in correct format." })
+                    }
+                    if (!valid.validPincode.test(shipping.pincode)) {
+                        return res.status(400).send({ status: false, message: "Shipping Address Pincode not valid." })
+                    }
+                    updateShippingAddress.pincode = shipping.pincode
+                }
+                final["$set"] = { address: { shipping: updateShippingAddress, billing: updateBillingAddress } }
+            }
+
+            if (billing) {
+
+                billing = JSON.parse(billing)
+
+                let a = await userModel.findOne({ _id: userId })
+                let copyShipping = a.address.shipping
+                let copyBilling = a.address.billing
+                let updateShippingAddress = {...copyShipping }
+                let updateBillingAddress = {...copyBilling }
+
+                if (billing.street) {
+                    if (!valid.isValidString(billing.street)) {
+                        return res.status(400).send({ status: false, message: "Billing Address Street not in correct format." })
+                    }
+                    updateBillingAddress.street = billing.street
+                }
+                if (billing.city) {
+                    if (!valid.isValidString(billing.city)) {
+                        return res.status(400).send({ status: false, message: "Billing Address City not in correct format." })
+                    }
+                    updateBillingAddress.city = billing.city
+                }
+                if (billing.pincode) {
+                    if (!valid.isValidNumber(billing.pincode)) {
+                        return res.status(400).send({ status: false, message: "Billing Address Pincode not in correct format." })
+                    }
+                    if (!valid.validPincode.test(billing.pincode)) {
+                        return res.status(400).send({ status: false, message: "Billing Address Pincode not valid." })
+                    }
+                    updateBillingAddress.pincode = billing.pincode
+                }
+                final["$set"] = { address: { shipping: updateShippingAddress, billing: updateBillingAddress } }
             }
         }
-        const updatedUser = await userModel.findOneAndUpdate({ userId: userId }, data, { new: true })
+
+        console.log(final)
+
+        const updatedUser = await userModel.findOneAndUpdate({ _id: userId }, final, { new: true })
 
         return res.status(200).send({ status: true, message: "Successfully Updated", data: updatedUser })
 
