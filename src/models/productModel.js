@@ -1,51 +1,68 @@
 const mongoose = require('mongoose')
-
-const userSchema = new mongoose.Schema({
+const Decimal = mongoose.Types.Decimal128
+const productSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        trim: true
     },
     description: {
         type: String,
-        required: true
+        required: true,
+        trim: true
+
     },
     price: {
         type: Number,
         required: true,
-        // valid number / decimal
+        trim: true
+            // valid number / decimal
     },
     currencyId: {
         type: String,
         required: true,
-        default: "INR"
+        default: "INR",
+        trim: true
+
     },
     currencyFormat: {
         type: String,
         required: true,
-        default: "₹"
+        default: "₹",
+        trim: true
+
     },
     isFreeShipping: {
         type: Boolean,
-        default: false
+        default: false,
+        trim: true
+
     },
     productImage: {
         type: String,
         required: true
     },
     style: {
-        type: String
+        type: String,
+        trim: true
+
     },
     availableSizes: {
         type: [String],
-        required: true
-            //enum:["S", "XS", "M", "X", "L", "XXL", "XL"]
+        required: true,
+        enum: ["S", "XS", "M", "X", "L", "XXL", "XL"],
+        trim: true
+
     },
     installments: {
-        type: Number
+        type: Number,
+        trim: true
+
     },
     deletedAt: {
-        type: Date
+        type: Date,
+        default: null
     },
     isDeleted: {
         type: Boolean,

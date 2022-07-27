@@ -6,12 +6,12 @@ const valid = require("./validation")
 exports.authentication = async function(req, res, next) {
     try {
         let token = req.headers.authorization
-
+            //'Bearer Token'
         if (typeof token == 'undefined' || typeof token == 'null') {
             return res.status(400).send({ status: true, msg: "Token must be present, not available." })
         }
 
-        let bearerToken = token.split(' ')
+        let bearerToken = token.split(' ') //[Bearer, Token]
         let Token = bearerToken[1]
 
         jwt.verify(Token, "MeNeSunRa-radon", function(error, data) {

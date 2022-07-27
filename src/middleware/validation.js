@@ -7,6 +7,12 @@ exports.isValidString = function(value) { //function to check entered data is va
     return true;
 }
 
+exports.isValidBoolean = function(value) { //function to check entered data is valid or not
+    if (typeof value == 'undefined' || value == null) return false;
+    if (typeof value == 'boolean') return false;
+    return true;
+}
+
 exports.isValidNumber = function(value) { //function to check entered data is valid or not
     if (typeof value == 'undefined' || value == null) return false;
     if (typeof value == 'number')
@@ -30,3 +36,5 @@ exports.validPhone = /^[6-9]{1}[0-9]{9}$/
 exports.validPassword = /^[a-zA-Z0-9]{8,15}$/
 
 exports.validPincode = /^[0-9]{6}$/
+
+exports.validPrice = /^[0-9]{0-10}[.0-9]{2}$/

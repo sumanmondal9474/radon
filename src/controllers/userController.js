@@ -19,11 +19,6 @@ const createUser = async function(req, res) {
             return res.status(400).send({ status: false, message: "Please enter some DETAILS!!!" })
         }
 
-        let files = req.files
-        if (files && files.length > 0) {
-            let url = await aws.uploadFile(files[0])
-            final.profileImages = url
-        }
 
         if (!valid.isValidString(fname)) {
             return res.status(400).send({ status: false, message: "fname not mentioned or not in correct format." })
@@ -134,7 +129,8 @@ const createUser = async function(req, res) {
                 return res.status(400).send({ status: false, message: `Billing Address Pincode is not valid. ` })
             }
         }
-        // const checkAddress = function(value) {
+        final.address = address
+            // const checkAddress = function(value) {
 
         //     if (valid.isValidBody(value)) {
         //         return res.status(400).send({ status: false, message: `OPPS!!You Forot to enter Address.` })
@@ -159,7 +155,16 @@ const createUser = async function(req, res) {
         // checkAddress(address.shipping)
         // checkAddress(address.billing)
 
-        final.address = address
+
+
+        let files = req.files
+        if (files && files.length > 0) {
+            let url = await aws.uploadFile(files[0])
+            final.profileImage = url
+        }
+
+
+
         console.log(final)
         const createUser = await userModel.create(final)
         return res.status(201).send({ status: true, message: "User created successfully", data: createUser })
@@ -172,47 +177,52 @@ const createUser = async function(req, res) {
 
 const loginUser = async function(req, res) {
 
-    let { email, password } = req.body;
+    try {
+
+        let { email, password } = req.body;
 
 
-    if (!valid.isValidBody(req.body) == 0) {
-        return res.status(400).send({ status: false, message: "Please enter data in request body" })
-    }
-
-    if (!email) {
-        return res.status(400).send({ status: false, message: "Please enter email" })
-    }
-
-    if (!password) {
-        return res.status(400).send({ status: false, message: "Please enter password " })
-
-    }
-    const user = await userModel.findOne({ email: email })
-    if (!user) { return res.status(404).send({ status: false, message: "NO user found" }) }
-
-    let encryptPwd = user.password
-
-    let decryptPwd = await bcrypt.compare(password, encryptPwd, function(err, result) {
-
-        if (result) {
-            let token = jwt.sign({
-                    userId: user._id.toString(),
-                    iat: Math.floor(Date.now() / 1000),
-                    exp: Math.floor(Date.now() / 1000) + 50 * 60 * 60,
-                    batch: "radon",
-                    organisation: "functionUp"
-                },
-                "MeNeSunRa-radon"
-            )
-
-            return res.status(200).send({ status: true, message: "You are successfully loggedin", data: { userId: user._id.toString(), token: token } })
-        } else {
-            return res.status(401).send({ status: false, message: "Invalid password!" });
+        if (!valid.isValidBody(req.body) == 0) {
+            return res.status(400).send({ status: false, message: "Please enter data in request body" })
         }
 
-    })
-}
+        if (!email) {
+            return res.status(400).send({ status: false, message: "Please enter email" })
+        }
 
+        if (!password) {
+            return res.status(400).send({ status: false, message: "Please enter password " })
+
+        }
+        const user = await userModel.findOne({ email: email })
+        if (!user) { return res.status(404).send({ status: false, message: "NO user found" }) }
+
+        let encryptPwd = user.password
+
+        let decryptPwd = await bcrypt.compare(password, encryptPwd, function(err, result) {
+
+            if (result) {
+                let token = jwt.sign({
+                        userId: user._id.toString(),
+                        iat: Math.floor(Date.now() / 1000),
+                        exp: Math.floor(Date.now() / 1000) + 50 * 60 * 60,
+                        batch: "radon",
+                        organisation: "functionUp"
+                    },
+                    "MeNeSunRa-radon"
+                )
+
+                return res.status(200).send({ status: true, message: "You are successfully loggedin", data: { userId: user._id.toString(), token: token } })
+
+            } else {
+                returnres.status(401).send({ status: false, message: "Invalid password!" });
+            }
+
+        })
+    } catch (err) {
+        return res.status(500).send({ satus: false, error: err.message })
+    }
+}
 const getUser = async(req, res) => {
     try {
         let userId = req.params.userId
