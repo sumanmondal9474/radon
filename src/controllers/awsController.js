@@ -30,27 +30,4 @@ let uploadFile = async(file) => {
     })
 }
 
-
-const awsGenerator = async function(req, res, next) {
-
-    try {
-        let files = req.files
-        if (files && files.length > 0) {
-
-            let uploadedFileURL = await uploadFile(files[0])
-                // res.status(201).send({msg: "file uploaded succesfully", data: uploadedFileURL})
-            req.swap = uploadedFileURL
-            next()
-        } else {
-            res.status(400).send({ status: false, message: "No file found" })
-            next()
-        }
-
-    } catch (err) {
-        res.status(500).send({ msg: err })
-    }
-
-}
-
 module.exports.uploadFile = uploadFile
-module.exports.awsGenerator = awsGenerator

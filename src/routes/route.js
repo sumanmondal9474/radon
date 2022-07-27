@@ -4,7 +4,7 @@ const { createUser, loginUser, getUser, updateUser } = require('../controllers/u
 const { awsGenerator } = require('../controllers/awsController')
 const { authentication, authorization } = require('../middleware/auth')
 
-router.post('/register', awsGenerator, createUser)
+router.post('/register', createUser)
 router.post('/login', loginUser)
 router.get('/user/:userId/profile', authentication, authorization, getUser)
 router.put('/user/:userId/profile', authentication, authorization, updateUser)

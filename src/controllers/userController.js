@@ -9,19 +9,21 @@ const createUser = async function(req, res) {
     try {
         let final = {}
 
-        final.profileImage = req.swap
-
         let { fname, lname, email, phone, password, address, ...rest } = req.body
 
         if (Object.keys(rest).length > 0) {
             return res.status(400).send({ status: false, message: "Unwanted Details Entered." })
         }
 
-
         if (Object.keys(req.body).length == 0) {
-            return res.status(400).send({ status: false, message: "Kindly enter all the required details." })
+            return res.status(400).send({ status: false, message: "Please enter some DETAILS!!!" })
         }
 
+        let files = req.files
+        if (files && files.length > 0) {
+            let url = await aws.uploadFile(files[0])
+            final.profileImages = url
+        }
 
         if (!valid.isValidString(fname)) {
             return res.status(400).send({ status: false, message: "fname not mentioned or not in correct format." })
@@ -240,18 +242,18 @@ const updateUser = async(req, res) => {
 
         let final = {}
 
-        let files = req.files
-        if (files && files.length > 0) {
-            let url = await aws.uploadFile(files[0])
-            final.profileImages = url
-        }
-
         if (Object.keys(rest).length > 0) {
             return res.status(400).send({ status: false, message: "Field Doesn't Exist" })
         }
 
         if (Object.keys(req.body).length == 0) {
             return res.status(400).send({ status: false, message: "Please enter some DETAILS!!!" })
+        }
+
+        let files = req.files
+        if (files && files.length > 0) {
+            let url = await aws.uploadFile(files[0])
+            final.profileImages = url
         }
 
         // if (userId && !valid.isValidObjectId(userId)) {
@@ -330,10 +332,9 @@ const updateUser = async(req, res) => {
             console.log("Ok")
 
             shipping = JSON.parse(shipping)
-            console.log(shipping)
+
             let a = await userModel.findOne({ _id: userId })
-            let copy = a.address.shipping
-            let updateShippingAddress = {...copy }
+            let updateShippingAddress = a.address.shipping
 
             if (shipping.street) {
                 if (!valid.isValidString(shipping.street)) {
@@ -361,8 +362,8 @@ const updateUser = async(req, res) => {
             console.log(billing)
 
             let b = await userModel.findOne({ _id: userId })
-            let copy1 = b.address.billing
-            let updateBillingAddress = {...copy1 }
+            let updateBillingAddress = b.address.billing
+
 
             if (billing.street) {
                 if (!valid.isValidString(billing.street)) {
@@ -393,10 +394,9 @@ const updateUser = async(req, res) => {
                 shipping = JSON.parse(shipping)
 
                 let a = await userModel.findOne({ _id: userId })
-                let copyShipping = a.address.shipping
-                let copyBilling = a.address.billing
-                let updateShippingAddress = {...copyShipping }
-                let updateBillingAddress = {...copyBilling }
+                let updateShippingAddress = a.address.shipping
+                let updateBillingAddress = a.address.billing
+
 
                 if (shipping.street) {
                     if (!valid.isValidString(shipping.street)) {
@@ -427,10 +427,8 @@ const updateUser = async(req, res) => {
                 billing = JSON.parse(billing)
 
                 let a = await userModel.findOne({ _id: userId })
-                let copyShipping = a.address.shipping
-                let copyBilling = a.address.billing
-                let updateShippingAddress = {...copyShipping }
-                let updateBillingAddress = {...copyBilling }
+                let updateShippingAddress = a.address.shipping
+                let updateBillingAddress = a.address.billing
 
                 if (billing.street) {
                     if (!valid.isValidString(billing.street)) {
