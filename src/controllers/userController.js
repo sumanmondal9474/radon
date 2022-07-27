@@ -368,6 +368,7 @@ const updateUser = async(req, res) => {
                 updateShippingAddress.pincode = shipping.pincode
             }
 
+
             billing = JSON.parse(billing)
             console.log(billing)
 
@@ -397,7 +398,9 @@ const updateUser = async(req, res) => {
                 updateBillingAddress.pincode = billing.pincode
             }
 
+
             final["$set"] = { address: { billing: updateBillingAddress, shipping: updateShippingAddress } }
+
 
         } else if (shipping || billing) {
             if (shipping) {

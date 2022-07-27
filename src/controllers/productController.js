@@ -351,9 +351,11 @@ const getQueryProduct = async(req, res) => {
             }
             size = size.split(',')
             console.log(size)
-            final.availableSize = { $in: size }
+            final.availableSizes = { $in: size }
+
         }
         console.log(final)
+
 
         if (name) {
             if (!valid.isValidString(name)) {
@@ -367,6 +369,7 @@ const getQueryProduct = async(req, res) => {
             if (!titleCheck) return res.status(404).send({ status: false, message: "Product not exsit with name " + name })
             final.title = name
         }
+
 
         if (priceGreaterThan && priceLessThan) {
             final.price = {
