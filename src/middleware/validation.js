@@ -38,3 +38,5 @@ exports.validPassword = /^[a-zA-Z0-9]{8,15}$/
 exports.validPincode = /^[0-9]{6}$/
 
 exports.validPrice = /^[0-9]{0-10}[.0-9]{2}$/
+
+exports.isBoolean = /^\s*(true|false)\s*$/

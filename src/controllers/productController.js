@@ -338,14 +338,20 @@ const updateProduct = async(req, res) => {
 
 
     if (isFreeShipping) {
-        isFreeShipping = parseBoolean(isFreeShipping)
-        if (typeof isFreeShipping !== 'boolean') {
-            return res.status(400).send({ status: false, message: "FreeShipping must have value of either True or False" });
+        isFreeShipping = isFreeShipping.trim().toLowerCase()
+
+        if (!valid.isBoolean.test(isFreeShipping)) {
+            return res.status(400).send({ status: false, message: "FreeShipping must have value of either True or False" })
         }
+
+        // if (typeof isFreeShipping !== 'boolean') {
+        //     return res.status(400).send({ status: false, message: "FreeShipping must have value of either True or False" });
+        // }
 
         final.isFreeShipping = isFreeShipping
     }
-
+    console.log(isFreeShipping)
+    console.log(final)
 
     if (installments) {
         installments = parseInt(installments)
