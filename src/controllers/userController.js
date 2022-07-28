@@ -361,9 +361,9 @@ const updateUser = async(req, res) => {
             final.address = useraddress
         }
 
-        let files = req.files
-        if (files && files.length > 0) {
-            let url = await aws.uploadFile(files[0])
+        let profileImages = req.files
+        if (profileImages && profileImages.length > 0) {
+            let url = await aws.uploadFile(profileImages[0])
             final.profileImages = url
         }
 
