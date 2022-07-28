@@ -104,7 +104,7 @@ const createProduct = async function(req, res) {
         if (b) {
             return res.status(400).send({ status: false, message: `Enter the correct size as mentioned ${size}` })
         }
-        final.availableSizes = { $addToSet: availableSizes }
+        final.availableSizes = availableSizes
 
 
 
@@ -166,16 +166,11 @@ const getQueryProduct = async(req, res) => {
                 return res.status(400).send({ status: false, message: "Name not mentioned or not in correct format." })
             }
 
-            let a = name.split(' ')
-                //     // console.log(a.forEach(x => x))
+            //   let a = name.split(' ')
             const titleCheck = await productModel.find({ isDeleted: false }).select({ title: 1, _id: 0 })
-                // let b = titleCheck.map(x => (a.forEach(y => {
-                //     if (x.title.includes(y)) return true
-                //     else return false
-                // })))
-                // console.log(b);
+
             if (!titleCheck) return res.status(404).send({ status: false, message: "Product not exsit with name " + name })
-            final["title.split(' ')"] = { $in: a }
+            final.title = { $regex: name }
         }
         console.log(final)
 
@@ -233,6 +228,7 @@ const getProductById = async(req, res) => {
 const updateProduct = async(req, res) => {
 
     let productId = req.params.ProductId
+
     let { title, description, price, currencyId, currencyFormat, isFreeShipping, productImage, style, availableSizes, installments, ...rest } = req.body
 
     if (Object.keys(rest).length > 0) {
