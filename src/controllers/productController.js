@@ -168,7 +168,6 @@ const getQueryProduct = async(req, res) => {
 
             //   let a = name.split(' ')
             const titleCheck = await productModel.find({ isDeleted: false }).select({ title: 1, _id: 0 })
-
             if (!titleCheck) return res.status(404).send({ status: false, message: "Product not exsit with name " + name })
             final.title = { $regex: name }
         }
@@ -189,6 +188,8 @@ const getQueryProduct = async(req, res) => {
                 final.price = { $lt: priceLessThan }
             }
         }
+
+        final.isDeleted = false
 
         const result = await productModel.find(final).sort({ price: 1 })
 
@@ -416,4 +417,5 @@ module.exports.createProduct = createProduct
 module.exports.getQueryProduct = getQueryProduct
 module.exports.getProductById = getProductById
 module.exports.updateProduct = updateProduct
+module.exports.deleteProduct = deleteProduct
 module.exports.deleteProduct = deleteProduct
