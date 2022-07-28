@@ -38,7 +38,6 @@ const createProduct = async function(req, res) {
 
 
         price = parseFloat(price)
-        console.log(price)
         if (isNaN(price)) {
             return res.status(400).send({ status: false, message: "Price not mentioned or not in correct format." })
         }
@@ -81,7 +80,6 @@ const createProduct = async function(req, res) {
         }
 
 
-
         const size = ['S', 'XS', 'M', 'X', 'L', 'XXL', 'XL']
         if (availableSizes.length == 0) {
             return res.status(400).send({ status: false, message: `You have to select at least one size out of ${size}` })
@@ -90,17 +88,12 @@ const createProduct = async function(req, res) {
 
         availableSizes = availableSizes.map(x => x.trim().toUpperCase())
 
-        console.log(availableSizes)
-
         let a = (availableSizes.map(x => {
             if (size.includes(x)) return true
             else return false
         }))
-        console.log(a)
 
         let b = a.includes(false)
-
-        console.log(b)
         if (b) {
             return res.status(400).send({ status: false, message: `Enter the correct size as mentioned ${size}` })
         }
@@ -140,14 +133,11 @@ const getQueryProduct = async(req, res) => {
 
         let { size, name, priceGreaterThan, priceLessThan, ...rest } = req.query
 
-
         let final = {}
 
         if (Object.keys(rest).length > 0) {
             return res.status(400).send({ status: false, message: "Field Doesn't Exist" })
         }
-
-        console.log(size)
 
         if (size) {
             if (!valid.isValidString(size)) {
@@ -155,9 +145,7 @@ const getQueryProduct = async(req, res) => {
             }
             size = size.split(',')
             size = size.map(x => x.trim().toUpperCase())
-            console.log(size)
             final.availableSizes = { $in: size }
-
         }
 
 
@@ -166,12 +154,10 @@ const getQueryProduct = async(req, res) => {
                 return res.status(400).send({ status: false, message: "Name not mentioned or not in correct format." })
             }
 
-            //   let a = name.split(' ')
             const titleCheck = await productModel.find({ isDeleted: false }).select({ title: 1, _id: 0 })
             if (!titleCheck) return res.status(404).send({ status: false, message: "Product not exsit with name " + name })
             final.title = { $regex: name }
         }
-        console.log(final)
 
 
         if (priceGreaterThan && priceLessThan) {
@@ -193,7 +179,11 @@ const getQueryProduct = async(req, res) => {
 
         const result = await productModel.find(final).sort({ price: 1 })
 
-        return res.status(200).send({ status: true, data: result })
+        if (result.length == 0) {
+            return res.status(404).send({ status: false, message: "No Product exists with this filter." })
+        }
+
+        return res.status(200).send({ status: true, message: "Successfull", data: result })
 
     } catch (err) {
         return res.status(500).send({ satus: false, error: err.message })
@@ -216,19 +206,26 @@ const getProductById = async(req, res) => {
             return res.status(404).send({ status: false, message: "Product not exist" })
         }
 
-        return res.status(200).send({ status: true, data: productData })
+        return res.status(200).send({ status: true, message: "Successfull", data: productData })
 
 
     } catch (err) {
         return res.status(500).send({ satus: false, err: err.message })
     }
+
 }
 
 
 
 const updateProduct = async(req, res) => {
 
-    let productId = req.params.ProductId
+    let productId = req.params.productId
+
+    if (!valid.isValidObjectId(productId)) {
+        return res.status(400).send({ status: false, msg: "ProductId is Invalid" })
+    }
+    let productData = await productModel.findOne({ _id: productId, isDeleted: false })
+    if (!productData) return res.status(404).send({ status: false, message: "No Product Found As per productId" })
 
     let { title, description, price, currencyId, currencyFormat, isFreeShipping, productImage, style, availableSizes, installments, ...rest } = req.body
 
@@ -239,13 +236,6 @@ const updateProduct = async(req, res) => {
     if (Object.keys(req.body).length == 0) {
         return res.status(400).send({ status: false, message: "Please enter some DETAILS!!!" })
     }
-
-
-    if (!valid.isValidObjectId(productId)) {
-        return res.status(400).send({ status: false, msg: "ProductId is Invalid" })
-    }
-    let productData = await productModel.findOne({ _id: productId, isDeleted: false })
-    if (!productData) return res.status(404).send({ status: false, message: "No Product Found As per productId" })
 
     let final = {}
 
@@ -343,20 +333,17 @@ const updateProduct = async(req, res) => {
             return res.status(400).send({ status: false, message: `Enter the correct size as mentioned ${size}` })
         }
 
-        final.availableSizes = { $addToSet: b }
+        final["$addToSet"] = { availableSizes: availableSizes }
     }
 
 
-
     if (isFreeShipping) {
-
         isFreeShipping = parseBoolean(isFreeShipping)
-        if (!isBoolean(isFreeShipping)) {
+        if (typeof isFreeShipping !== 'boolean') {
             return res.status(400).send({ status: false, message: "FreeShipping must have value of either True or False" });
         }
 
         final.isFreeShipping = isFreeShipping
-
     }
 
 
@@ -370,17 +357,18 @@ const updateProduct = async(req, res) => {
 
     }
 
+    if (req.files) {
+        let productImg = req.files.productImg
+        if (productImg && productImg.length > 0) {
+            const productImageLink = await aws.uploadFile(productImg[0])
 
-    let productImg = req.files;
-    if (productImg && productImg.length > 0) {
-        const productImageLink = await aws.uploadFile(productImg[0])
-
-        final.productImageLink = productImageLink
+            final.productImage = productImageLink
+        }
     }
 
-
     let updatedproduct = await productModel.findByIdAndUpdate(productId, final, { new: true })
-    return res.status(200).send({ status: true, data: updatedproduct })
+
+    return res.status(200).send({ status: true, message: "Successfully Updated", data: updatedproduct })
 }
 
 
