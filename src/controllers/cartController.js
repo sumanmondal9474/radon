@@ -99,7 +99,55 @@ const createCart = async function(req, res) {
 }
 
 
+const updateCart = async(req, res) => {
 
+    let userId = req.params.userId
+
+    let { cartId, productId, removeProduct } = req.body
+
+    if (!valid.isValidObjectId(productId)) {
+        return res.status(400).send({ status: false, messege: "Invalid CartId" })
+    }
+    if (!valid.isValidObjectId(cartId)) {
+        return res.status(400).send({ status: false, messege: "Invalid CartId" })
+    }
+
+    let cartAvailable = await cartModel.findOne({ userId: userId })
+    if (!cartAvailable) {
+        return res.status(404).send({ status: false, message: "Cart not found" })
+    }
+    // product check in db
+    let product = await productModel.findOne({ productId: productId, isDeleted: false })
+    if (!product) {
+        return res.status(404).send({ status: false, message: "Product not found" })
+    }
+
+    //  product check in cart
+    let productCart = await cartModel.findOne({ items: { $elemMatch: { productId: productId } } })
+    console.log(productCart)
+    if (!productCart) {
+        return res.status(400).send({ status: false, message: 'Product does not exists in the cart' })
+    }
+
+    if (!valid.isValidNumber(removeProduct)) {
+        return res.status(400).send({ status: false, messege: "Invalid removeProduct" })
+    }
+    // if (removeProduct != 0 || removeProduct != 1) {
+    //     return res.status(400).send({ status: false, messege: "RemoveProduct should be Either 0 or 1" })
+    // }
+
+    if (removeProduct == 0) {
+        //let productIndex = cartAvailable.findIndex(x => { if (x.productId == productId) return x })
+        let a = await cartModel.findOneAndUpdate({ "items.productId": productId }, { $pull: { items: { productId: productId } } }, { new: true })
+        return res.status(400).send({ status: false, messege: a })
+    }
+
+    if (removeProduct == 1) {
+        await cartModel.findByIdAndUpdate({ _id: cartId, productId }, { $inc: { quantity: -1 } }, { new: true })
+        return res.status(400).send({ status: false, messege: "Quantity reduced" })
+    }
+
+}
 
 
 const getCart = async function(req, res) {
@@ -117,6 +165,7 @@ const getCart = async function(req, res) {
         res.status(500).send({ status: false, Message: error.message })
     }
 }
+
 
 const deleteCart = async function(req, res) {
     try {
@@ -136,6 +185,14 @@ const deleteCart = async function(req, res) {
 }
 
 module.exports.createCart = createCart
-    //module.exports.updateCart = updateCart
+module.exports.updateCart = updateCart
 module.exports.getCart = getCart
 module.exports.deleteCart = deleteCart
+
+
+//diff between programming and scripting language, javascript is:-
+//1. Single Threaded
+//2. Synchronous
+//3. Non Blocking
+//Javascript language is scription language (do not need compilation)
+//Javascript used in front end How? (dynamic way of used), used to make user interaction and event handling as when we scroll of mouse.
