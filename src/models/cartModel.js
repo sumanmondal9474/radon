@@ -4,7 +4,7 @@ const cartSchema = new mongoose.Schema({
     userId: {
         type: ObjectId,
         ref: "User",
-        require: true,
+        required: true,
         unique: true,
         trim: true,
     },
@@ -12,30 +12,30 @@ const cartSchema = new mongoose.Schema({
         productId: {
             type: ObjectId,
             ref: "Product",
-            require: true,
-            trim: true,
+            required: true,
+            trim: true
         },
         quantity: {
             type: Number,
-            require: true,
+            required: true,
             min: 1,
             trim: true
-        }
+        },
+        _id: false
     }],
     totalPrice: {
         type: Number,
-        require: true,
+        required: true,
         trim: true,
         comment: "Holds total price of all the items in the cart"
 
     },
     totalItems: {
         type: Number,
-        require: true,
+        required: true,
         comment: "Holds total number of items in the cart",
         trim: true,
     }
-
 }, { timestamps: true })
 
-module.exports = mongoose.model("Cart", cartSchema),
+module.exports = mongoose.model("Cart", cartSchema)

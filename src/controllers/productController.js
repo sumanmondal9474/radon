@@ -180,7 +180,7 @@ const getQueryProduct = async(req, res) => {
         priceSort = parseInt(priceSort)
         if (priceSort) {
             if (priceSort !== -1 || priceSort !== 1) {
-                return res.status(400).send(status: false, message: "Only values acceptable (-1 and 1) ")
+                return res.status(400).send({ status: false, message: "Only values acceptable (-1 and 1)" })
             }
         }
         const result = await productModel.find(final).sort({ price: priceSort })
@@ -418,5 +418,4 @@ module.exports.createProduct = createProduct
 module.exports.getQueryProduct = getQueryProduct
 module.exports.getProductById = getProductById
 module.exports.updateProduct = updateProduct
-module.exports.deleteProduct = deleteProduct
 module.exports.deleteProduct = deleteProduct

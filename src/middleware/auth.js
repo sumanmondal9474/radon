@@ -16,7 +16,7 @@ exports.authentication = async function(req, res, next) {
 
         jwt.verify(Token, "MeNeSunRa-radon", function(error, data) {
             if (error) {
-                return res.status(400).send({ status: false, msg: error.message });
+                return res.status(401).send({ status: false, msg: error.message });
             } else {
                 req.decodedToken = data
                 next()

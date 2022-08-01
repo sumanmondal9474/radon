@@ -185,6 +185,8 @@ const loginUser = async function(req, res) {
                     "MeNeSunRa-radon"
                 )
 
+                res.setHeader("Authorization", token)
+
                 return res.status(200).send({ status: true, message: "You are successfully loggedin", data: { userId: user._id.toString(), token: token } })
 
             } else {
