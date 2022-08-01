@@ -147,7 +147,7 @@ const createUser = async function(req, res) {
     }
 }
 
-
+//business logic
 const loginUser = async function(req, res) {
 
     try {
@@ -188,7 +188,7 @@ const loginUser = async function(req, res) {
                 return res.status(200).send({ status: true, message: "You are successfully loggedin", data: { userId: user._id.toString(), token: token } })
 
             } else {
-                returnres.status(401).send({ status: false, message: "Invalid password!" });
+                return res.status(401).send({ status: false, message: "Invalid password!" });
             }
 
         })

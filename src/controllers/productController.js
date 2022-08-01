@@ -131,7 +131,7 @@ const getQueryProduct = async(req, res) => {
 
     try {
 
-        let { size, name, priceGreaterThan, priceLessThan, ...rest } = req.query
+        let { size, name, priceGreaterThan, priceLessThan, priceSort, ...rest } = req.query
 
         let final = {}
 
@@ -177,7 +177,13 @@ const getQueryProduct = async(req, res) => {
 
         final.isDeleted = false
 
-        const result = await productModel.find(final).sort({ price: 1 })
+        priceSort = parseInt(priceSort)
+        if (priceSort) {
+            if (priceSort !== -1 || priceSort !== 1) {
+                return res.status(400).send(status: false, message: "Only values acceptable (-1 and 1) ")
+            }
+        }
+        const result = await productModel.find(final).sort({ price: priceSort })
 
         if (result.length == 0) {
             return res.status(404).send({ status: false, message: "No Product exists with this filter." })
@@ -402,6 +408,7 @@ const deleteProduct = async(req, res) => {
     } catch (err) {
         return res.status(500).send({ satus: false, err: err.message })
     }
+
 }
 
 
