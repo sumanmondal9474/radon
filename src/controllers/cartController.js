@@ -27,7 +27,6 @@ const createCart = async function(req, res) {
         }
 
         if (quantity) {
-
             if (!valid.isValidNumber(quantity)) {
                 return res.status(400).send({ status: false, Message: "Quantity not mentioned or not in correct format." })
             }
@@ -44,6 +43,7 @@ const createCart = async function(req, res) {
         let cartAvailable = await cartModel.findOne({ userId: userId })
 
         if (cartAvailable) {
+
             if (quantity == undefined) {
                 quantity = 1
             }
