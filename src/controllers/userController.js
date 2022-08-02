@@ -132,10 +132,12 @@ const createUser = async function(req, res) {
 
 
         let files = req.files
+        console.log(files)
         if (files && files.length > 0) {
             let url = await aws.uploadFile(files[0])
             final.profileImage = url
         }
+
 
 
         const createUser = await userModel.create(final)

@@ -9,7 +9,15 @@ const createCart = async function(req, res) {
 
         const userId = req.params.userId
 
-        let { productId, quantity } = req.body
+        let { productId, quantity, ...rest } = req.body
+
+        if (Object.keys(rest).length > 0) {
+            return res.status(400).send({ status: false, message: "Unwanted Details Entered." })
+        }
+
+        if (Object.keys(req.body).length == 0) {
+            return res.status(400).send({ status: false, message: "Please enter some DETAILS!!!" })
+        }
 
         let final = {}
 
@@ -101,52 +109,84 @@ const createCart = async function(req, res) {
 
 const updateCart = async(req, res) => {
 
-    let userId = req.params.userId
+    try {
+        let userId = req.params.userId
 
-    let { cartId, productId, removeProduct } = req.body
+        let { cartId, productId, removeProduct, ...rest } = req.body
 
-    if (!valid.isValidObjectId(productId)) {
-        return res.status(400).send({ status: false, messege: "Invalid CartId" })
-    }
-    if (!valid.isValidObjectId(cartId)) {
-        return res.status(400).send({ status: false, messege: "Invalid CartId" })
-    }
+        if (Object.keys(rest).length > 0) {
+            return res.status(400).send({ status: false, message: "Unwanted Details Entered." })
+        }
 
-    let cartAvailable = await cartModel.findOne({ userId: userId })
-    if (!cartAvailable) {
-        return res.status(404).send({ status: false, message: "Cart not found" })
-    }
-    // product check in db
-    let product = await productModel.findOne({ productId: productId, isDeleted: false })
-    if (!product) {
-        return res.status(404).send({ status: false, message: "Product not found" })
-    }
+        if (Object.keys(req.body).length == 0) {
+            return res.status(400).send({ status: false, message: "Please enter some DETAILS!!!" })
+        }
 
-    //  product check in cart
-    let productCart = await cartModel.findOne({ items: { $elemMatch: { productId: productId } } })
-    console.log(productCart)
-    if (!productCart) {
-        return res.status(400).send({ status: false, message: 'Product does not exists in the cart' })
-    }
+        if (!valid.isValidString(productId)) {
+            return res.status(400).send({ status: false, messege: "ProductId not mentioned or not in correct format." })
+        }
+        if (!valid.isValidObjectId(productId)) {
+            return res.status(400).send({ status: false, messege: "Invalid ProductId" })
+        }
 
-    if (!valid.isValidNumber(removeProduct)) {
-        return res.status(400).send({ status: false, messege: "Invalid removeProduct" })
-    }
-    // if (removeProduct != 0 || removeProduct != 1) {
-    //     return res.status(400).send({ status: false, messege: "RemoveProduct should be Either 0 or 1" })
-    // }
 
-    if (removeProduct == 0) {
-        //let productIndex = cartAvailable.findIndex(x => { if (x.productId == productId) return x })
-        let a = await cartModel.findOneAndUpdate({ "items.productId": productId }, { $pull: { items: { productId: productId } } }, { new: true })
-        return res.status(400).send({ status: false, messege: a })
-    }
+        if (!valid.isValidString(productId)) {
+            return res.status(400).send({ status: false, messege: "CartId not mentioned or not in correct format." })
+        }
+        if (!valid.isValidObjectId(cartId)) {
+            return res.status(400).send({ status: false, messege: "Invalid CartId" })
+        }
 
-    if (removeProduct == 1) {
-        await cartModel.findByIdAndUpdate({ _id: cartId, productId }, { $inc: { quantity: -1 } }, { new: true })
-        return res.status(400).send({ status: false, messege: "Quantity reduced" })
-    }
+        let cartAvailable = await cartModel.findOne({ userId: userId })
+        if (!cartAvailable) {
+            return res.status(404).send({ status: false, message: "Cart not found" })
+        }
+        // product check in db
+        let product = await productModel.findOne({ _id: productId, isDeleted: false })
+        if (!product) {
+            return res.status(404).send({ status: false, message: "Product not found" })
+        }
+        console.log(product)
+            //  product check in cart
+        let productCart = await cartModel.findOne({ items: { $elemMatch: { productId: productId } } })
 
+        if (!productCart) {
+            return res.status(400).send({ status: false, message: 'Product does not exists in the cart' })
+        }
+
+        if (!valid.isValidNumber(removeProduct)) {
+            return res.status(400).send({ status: false, messege: "Invalid removeProduct" })
+        }
+        if (!/^[0-1]$/.test(removeProduct)) {
+            return res.status(400).send({ status: false, messege: "RemoveProduct should be Either 0 or 1" })
+        }
+
+        let productIndex = cartAvailable.items.findIndex(x => { if (x.productId = productId) return x })
+
+
+        if (removeProduct == 0) {
+            let f = {}
+            f["$pull"] = { items: { productId: productId } }
+            f.totalPrice = cartAvailable.totalPrice - (cartAvailable.items[productIndex].quantity * product.price)
+            f.totalItems = cartAvailable.totalItems - 1
+
+            let a = await cartModel.findOneAndUpdate({ "items.productId": productId }, f, { new: true }).populate('items.productId', { title: 1, price: 1, productImage: 1 })
+            return res.status(400).send({ status: false, messege: a })
+        }
+
+        if (removeProduct == 1) {
+            let f = {}
+
+            f["$inc"] = { "items.$.quantity": -1 }
+            f.totalPrice = cartAvailable.totalPrice - product.price
+
+            let ans = await cartModel.findOneAndUpdate({ "items.productId": productId }, f, { new: true }).populate('items.productId', { title: 1, price: 1, productImage: 1 })
+            return res.status(400).send({ status: false, messege: "Quantity reduced", data: ans })
+        }
+
+    } catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
+    }
 }
 
 
@@ -154,15 +194,16 @@ const getCart = async function(req, res) {
     try {
         const userId = req.params.userId
 
-        const checkCart = await cartModel.findOne({ userId: userId }).populate('items.productId')
+        const checkCart = await cartModel.findOne({ userId: userId }).populate('items.productId', { title: 1, price: 1, productImage: 1 })
+
         if (!checkCart) {
-            return res.status(404).send({ status: false, Message: 'cart not found ' })
+            return res.status(404).send({ status: false, Message: 'Cart not found ' })
         }
 
-        res.status(200).send({ status: true, Message: 'success', data: checkCart })
+        res.status(200).send({ status: true, message: 'Success', data: checkCart })
 
     } catch (error) {
-        res.status(500).send({ status: false, Message: error.message })
+        res.status(500).send({ status: false, message: error.message })
     }
 }
 
@@ -172,15 +213,17 @@ const deleteCart = async function(req, res) {
         const userId = req.params.userId
 
         const checkCart = await cartModel.findOne({ userId: userId })
+
         if (!checkCart) {
-            return res.status(400).send({ status: false, Message: 'cart not found ' })
+            return res.status(400).send({ status: false, Message: 'Cart not found ' })
         }
+
         await cartModel.findOneAndUpdate({ userId: userId }, { items: [], totalPrice: 0, totalItems: 0 })
 
-        res.status(200).send({ status: true, Message: 'sucessfully deleted' })
+        return res.status(204).send({ status: true, message: 'Sucessfully deleted' })
 
     } catch (error) {
-        res.status(500).send({ status: false, Message: error.message })
+        res.status(500).send({ status: false, message: error.message })
     }
 }
 
@@ -195,4 +238,6 @@ module.exports.deleteCart = deleteCart
 //2. Synchronous
 //3. Non Blocking
 //Javascript language is scription language (do not need compilation)
-//Javascript used in front end How? (dynamic way of used), used to make user interaction and event handling as when we scroll of mouse.
+//Javascript used in front end How? (dynamic way of used), used to make user interaction and event handling as when we scroll of mousue
+//Javascript used in front end How? (dynamic way of used), used to make user interaction and event handling as when we scroll of mousue
+//Javascript used in front end How? (dynamic way of used), used to make user interaction and event handling as when we scroll of mousueuserId
