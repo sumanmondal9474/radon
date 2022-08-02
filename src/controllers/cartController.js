@@ -130,6 +130,7 @@ const updateCart = async(req, res) => {
         }
 
 
+
         if (!valid.isValidString(productId)) {
             return res.status(400).send({ status: false, messege: "CartId not mentioned or not in correct format." })
         }
@@ -141,30 +142,36 @@ const updateCart = async(req, res) => {
         if (!cartAvailable) {
             return res.status(404).send({ status: false, message: "Cart not found" })
         }
-        // product check in db
+
         let product = await productModel.findOne({ _id: productId, isDeleted: false })
         if (!product) {
             return res.status(404).send({ status: false, message: "Product not found" })
         }
-        console.log(product)
-            //  product check in cart
-        let productCart = await cartModel.findOne({ items: { $elemMatch: { productId: productId } } })
+
+
+
+        let productCart = await cartModel.findOne({ userId: userId }, { items: { $elemMatch: { productId: productId } } })
 
         if (!productCart) {
             return res.status(400).send({ status: false, message: 'Product does not exists in the cart' })
         }
 
-        if (!valid.isValidNumber(removeProduct)) {
-            return res.status(400).send({ status: false, messege: "Invalid removeProduct" })
-        }
+        // if (!valid.isValidNumber(removeProduct)) {
+        //     return res.status(400).send({ status: false, messege: "Invalid removeProduct" })
+        // }
+        removeProduct = parseInt(removeProduct)
+
         if (!/^[0-1]$/.test(removeProduct)) {
             return res.status(400).send({ status: false, messege: "RemoveProduct should be Either 0 or 1" })
         }
 
         let productIndex = cartAvailable.items.findIndex(x => { if (x.productId = productId) return x })
 
-
+        if (productIndex == -1) {
+            return res.status(403).send({ status: false, messege: "You are not authorize this cart" })
+        }
         if (removeProduct == 0) {
+
             let f = {}
             f["$pull"] = { items: { productId: productId } }
             f.totalPrice = cartAvailable.totalPrice - (cartAvailable.items[productIndex].quantity * product.price)
@@ -172,16 +179,30 @@ const updateCart = async(req, res) => {
 
             let a = await cartModel.findOneAndUpdate({ "items.productId": productId }, f, { new: true }).populate('items.productId', { title: 1, price: 1, productImage: 1 })
             return res.status(400).send({ status: false, messege: a })
+
         }
 
+
         if (removeProduct == 1) {
+
             let f = {}
 
-            f["$inc"] = { "items.$.quantity": -1 }
-            f.totalPrice = cartAvailable.totalPrice - product.price
+            if (cartAvailable.items[productIndex].quantity == 1) {
 
-            let ans = await cartModel.findOneAndUpdate({ "items.productId": productId }, f, { new: true }).populate('items.productId', { title: 1, price: 1, productImage: 1 })
-            return res.status(400).send({ status: false, messege: "Quantity reduced", data: ans })
+                f["$pull"] = { items: { productId: productId } }
+                f.totalPrice = cartAvailable.totalPrice - product.price
+                f.totalItems = cartAvailable.totalItems - 1
+
+                let a = await cartModel.findOneAndUpdate({ "items.productId": productId }, f, { new: true }).populate('items.productId', { title: 1, price: 1, productImage: 1 })
+                return res.status(400).send({ status: false, messege: a })
+
+            } else {
+                f["$inc"] = { "items.$.quantity": -1 }
+                f.totalPrice = cartAvailable.totalPrice - product.price
+
+                let ans = await cartModel.findOneAndUpdate({ "items.productId": productId }, f, { new: true }).populate('items.productId', { title: 1, price: 1, productImage: 1 })
+                return res.status(400).send({ status: false, messege: "Quantity reduced", data: ans })
+            }
         }
 
     } catch (err) {
@@ -191,6 +212,7 @@ const updateCart = async(req, res) => {
 
 
 const getCart = async function(req, res) {
+
     try {
         const userId = req.params.userId
 
@@ -209,6 +231,7 @@ const getCart = async function(req, res) {
 
 
 const deleteCart = async function(req, res) {
+
     try {
         const userId = req.params.userId
 
