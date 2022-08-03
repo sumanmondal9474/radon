@@ -41,10 +41,10 @@ const createCart = async function(req, res) {
             if (quantity < 1) {
                 return res.status(400).send({ status: false, Message: "Minimum 1 Quantity" })
             }
-            req.body.quantity = quantity
+            //req.body.quantity = quantity
 
         } else {
-            req.body.quantity = 1
+            quantity = 1
         }
 
 
@@ -52,9 +52,9 @@ const createCart = async function(req, res) {
 
         if (cartAvailable) {
 
-            if (quantity == undefined) {
-                quantity = 1
-            }
+            // if (quantity == undefined) {
+            //     quantity = 1
+            // }
 
             let ans = (cartAvailable.items).map(x => {
                 if (x.productId == productId) return true
@@ -73,7 +73,7 @@ const createCart = async function(req, res) {
 
                 final.totalPrice = cartAvailable.totalPrice + (product.price * quantity)
 
-                let result = await cartModel.findOneAndUpdate({ "items.productId": productId }, final, { new: true })
+                let result = await cartModel.findOneAndUpdate({ userId: userId, "items.productId": productId }, final, { new: true })
 
                 return res.status(200).send({ status: false, message: "The product added.", data: result })
 
@@ -93,7 +93,7 @@ const createCart = async function(req, res) {
 
 
         final.items = [req.body]
-        final.totalPrice = (product.price * req.body.quantity)
+        final.totalPrice = (product.price * quantity)
         final.totalItems = 1
 
 
@@ -131,14 +131,15 @@ const updateCart = async(req, res) => {
 
 
 
-        if (!valid.isValidString(productId)) {
+        if (!valid.isValidString(cartId)) {
             return res.status(400).send({ status: false, messege: "CartId not mentioned or not in correct format." })
         }
         if (!valid.isValidObjectId(cartId)) {
             return res.status(400).send({ status: false, messege: "Invalid CartId" })
         }
 
-        let cartAvailable = await cartModel.findOne({ userId: userId })
+
+        let cartAvailable = await cartModel.findOne({ _id: cartId, userId: userId })
         if (!cartAvailable) {
             return res.status(404).send({ status: false, message: "Cart not found" })
         }
@@ -165,11 +166,13 @@ const updateCart = async(req, res) => {
             return res.status(400).send({ status: false, messege: "RemoveProduct should be Either 0 or 1" })
         }
 
-        let productIndex = cartAvailable.items.findIndex(x => { if (x.productId = productId) return x })
+        //let productIndex = cartAvailable.items.findIndex(x => { if (x.productId = productId) return x })
+        let productIndex = cartAvailable.items.indexOf(productId)
 
         if (productIndex == -1) {
-            return res.status(403).send({ status: false, messege: "You are not authorize this cart" })
+            return res.status(403).send({ status: false, messege: "The product is not avaialble in this cart." })
         }
+
         if (removeProduct == 0) {
 
             let f = {}
@@ -178,6 +181,7 @@ const updateCart = async(req, res) => {
             f.totalItems = cartAvailable.totalItems - 1
 
             let a = await cartModel.findOneAndUpdate({ "items.productId": productId }, f, { new: true }).populate('items.productId', { title: 1, price: 1, productImage: 1 })
+
             return res.status(400).send({ status: false, messege: a })
 
         }
@@ -194,6 +198,7 @@ const updateCart = async(req, res) => {
                 f.totalItems = cartAvailable.totalItems - 1
 
                 let a = await cartModel.findOneAndUpdate({ "items.productId": productId }, f, { new: true }).populate('items.productId', { title: 1, price: 1, productImage: 1 })
+
                 return res.status(400).send({ status: false, messege: a })
 
             } else {
@@ -201,6 +206,7 @@ const updateCart = async(req, res) => {
                 f.totalPrice = cartAvailable.totalPrice - product.price
 
                 let ans = await cartModel.findOneAndUpdate({ "items.productId": productId }, f, { new: true }).populate('items.productId', { title: 1, price: 1, productImage: 1 })
+
                 return res.status(400).send({ status: false, messege: "Quantity reduced", data: ans })
             }
         }
