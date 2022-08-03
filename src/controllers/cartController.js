@@ -170,6 +170,7 @@ const updateCart = async(req, res) => {
         if (removeProduct == 0) {
 
             let f = {}
+
             f["$pull"] = { items: { productId: productId } }
             f.totalPrice = cartAvailable.totalPrice - (cartAvailable.items[productIndex].quantity * product.price)
             f.totalItems = cartAvailable.totalItems - 1
@@ -196,6 +197,7 @@ const updateCart = async(req, res) => {
                 return res.status(200).send({ status: true, messege: "Product Removed", data: result })
 
             } else {
+
                 final["$inc"] = { "items.$.quantity": -1 }
                 final.totalPrice = cartAvailable.totalPrice - product.price
 
