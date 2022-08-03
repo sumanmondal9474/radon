@@ -141,7 +141,7 @@ const updateCart = async(req, res) => {
             return res.status(400).send({ status: false, messege: "Invalid CartId" })
         }
         let cartAvailable = await cartModel.findOne({ _id: cartId, userId: userId })
-        console.log(cartAvailable)
+
 
         if (!cartAvailable) {
             return res.status(404).send({ status: false, message: "Incorrect Cart" })
@@ -161,9 +161,8 @@ const updateCart = async(req, res) => {
 
 
 
-        //let productIndex = cartAvailable.items.findIndex(x => { if (x.productId = productId) return x })
-        let productIndex = cartAvailable.items.indexOf(productId)
-        console.log(productIndex)
+        let productIndex = cartAvailable.items.findIndex(x => { if (x.productId = productId) return x })
+
 
         if (productIndex == -1) {
             return res.status(403).send({ status: false, messege: "The product is not avaialble in this cart." })
