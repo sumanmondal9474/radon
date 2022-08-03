@@ -41,7 +41,6 @@ const createCart = async function(req, res) {
             if (quantity < 1) {
                 return res.status(400).send({ status: false, Message: "Minimum 1 Quantity" })
             }
-            //req.body.quantity = quantity
 
         } else {
             req.body.quantity = 1
@@ -144,11 +143,11 @@ const updateCart = async(req, res) => {
 
 
         if (!cartAvailable) {
-            return res.status(404).send({ status: false, message: "Incorrect Cart" })
+            return res.status(404).send({ status: false, message: "Cart Not Found" })
         }
 
 
-        let productCart = await cartModel.findOne({ userId: userId }, { items: { $elemMatch: { productId: productId } } })
+        let productCart = await cartModel.findOne({ _id: cartId, userId: userId }, { items: { $elemMatch: { productId: productId } } })
         if (!productCart) {
             return res.status(400).send({ status: false, message: 'Product does not exists in the cart' })
         }
@@ -165,7 +164,7 @@ const updateCart = async(req, res) => {
 
 
         if (productIndex == -1) {
-            return res.status(403).send({ status: false, messege: "The product is not avaialble in this cart." })
+            return res.status(404).send({ status: false, messege: "The product is not avaialble in this cart." })
         }
 
         if (removeProduct == 0) {
@@ -175,34 +174,34 @@ const updateCart = async(req, res) => {
             f.totalPrice = cartAvailable.totalPrice - (cartAvailable.items[productIndex].quantity * product.price)
             f.totalItems = cartAvailable.totalItems - 1
 
-            let a = await cartModel.findOneAndUpdate({ "items.productId": productId }, f, { new: true }).populate('items.productId', { title: 1, price: 1, productImage: 1 })
+            let result = await cartModel.findOneAndUpdate({ "items.productId": productId }, f, { new: true }).populate('items.productId', { title: 1, price: 1, productImage: 1 })
 
-            return res.status(400).send({ status: false, messege: a })
+            return res.status(200).send({ status: true, messege: "Product Removed", data: result })
 
         }
 
 
         if (removeProduct == 1) {
 
-            let f = {}
+            let final = {}
 
             if (cartAvailable.items[productIndex].quantity == 1) {
 
-                f["$pull"] = { items: { productId: productId } }
-                f.totalPrice = cartAvailable.totalPrice - product.price
-                f.totalItems = cartAvailable.totalItems - 1
+                final["$pull"] = { items: { productId: productId } }
+                final.totalPrice = cartAvailable.totalPrice - product.price
+                final.totalItems = cartAvailable.totalItems - 1
 
-                let a = await cartModel.findOneAndUpdate({ "items.productId": productId }, f, { new: true }).populate('items.productId', { title: 1, price: 1, productImage: 1 })
+                let result = await cartModel.findOneAndUpdate({ "items.productId": productId }, final, { new: true }).populate('items.productId', { title: 1, price: 1, productImage: 1 })
 
-                return res.status(400).send({ status: false, messege: a })
+                return res.status(200).send({ status: true, messege: "Product Removed", data: result })
 
             } else {
-                f["$inc"] = { "items.$.quantity": -1 }
-                f.totalPrice = cartAvailable.totalPrice - product.price
+                final["$inc"] = { "items.$.quantity": -1 }
+                final.totalPrice = cartAvailable.totalPrice - product.price
 
-                let ans = await cartModel.findOneAndUpdate({ "items.productId": productId }, f, { new: true }).populate('items.productId', { title: 1, price: 1, productImage: 1 })
+                let result = await cartModel.findOneAndUpdate({ "items.productId": productId }, final, { new: true }).populate('items.productId', { title: 1, price: 1, productImage: 1 })
 
-                return res.status(400).send({ status: false, messege: "Quantity reduced", data: ans })
+                return res.status(200).send({ status: true, messege: "Quantity reduced", data: result })
             }
         }
 
