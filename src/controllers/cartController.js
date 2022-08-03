@@ -44,17 +44,16 @@ const createCart = async function(req, res) {
             //req.body.quantity = quantity
 
         } else {
-            quantity = 1
+            req.body.quantity = 1
         }
-
 
         let cartAvailable = await cartModel.findOne({ userId: userId })
 
         if (cartAvailable) {
 
-            // if (quantity == undefined) {
-            //     quantity = 1
-            // }
+            if (quantity == undefined) {
+                quantity = 1
+            }
 
             let ans = (cartAvailable.items).map(x => {
                 if (x.productId == productId) return true
@@ -70,36 +69,34 @@ const createCart = async function(req, res) {
                 let newQuantity = cartAvailable.items[oldQuantityIndex].quantity + quantity
 
                 final["items.$.quantity"] = newQuantity
-
                 final.totalPrice = cartAvailable.totalPrice + (product.price * quantity)
 
                 let result = await cartModel.findOneAndUpdate({ userId: userId, "items.productId": productId }, final, { new: true })
 
-                return res.status(200).send({ status: false, message: "The product added.", data: result })
+                return res.status(200).send({ status: true, message: "The product added.", data: result })
 
             } else {
 
                 final["$push"] = { items: req.body }
 
                 final.totalPrice = (cartAvailable.totalPrice + (product.price * quantity))
-
                 final.totalItems = (cartAvailable.totalItems + 1)
 
                 let result = await cartModel.findOneAndUpdate({ userId: userId }, final, { new: true })
 
-                return res.status(200).send({ status: false, message: "The product added.", data: result })
+                return res.status(200).send({ status: true, message: "The product added.", data: result })
             }
         }
 
 
         final.items = [req.body]
-        final.totalPrice = (product.price * quantity)
+        final.totalPrice = (product.price * req.body.quantity)
         final.totalItems = 1
 
 
         let result = await cartModel.create(final)
 
-        return res.status(201).send({ status: false, message: "Cart Successfully Created", data: result })
+        return res.status(201).send({ status: true, message: "Cart Successfully Created", data: result })
 
     } catch (err) {
         res.status(500).send({ status: false, message: err.message })
@@ -122,11 +119,17 @@ const updateCart = async(req, res) => {
             return res.status(400).send({ status: false, message: "Please enter some DETAILS!!!" })
         }
 
+
+
         if (!valid.isValidString(productId)) {
             return res.status(400).send({ status: false, messege: "ProductId not mentioned or not in correct format." })
         }
         if (!valid.isValidObjectId(productId)) {
             return res.status(400).send({ status: false, messege: "Invalid ProductId" })
+        }
+        let product = await productModel.findOne({ _id: productId, isDeleted: false })
+        if (!product) {
+            return res.status(404).send({ status: false, message: "Product not found" })
         }
 
 
@@ -137,37 +140,30 @@ const updateCart = async(req, res) => {
         if (!valid.isValidObjectId(cartId)) {
             return res.status(400).send({ status: false, messege: "Invalid CartId" })
         }
-
-
         let cartAvailable = await cartModel.findOne({ _id: cartId, userId: userId })
+        console.log(cartAvailable)
+
         if (!cartAvailable) {
-            return res.status(404).send({ status: false, message: "Cart not found" })
+            return res.status(404).send({ status: false, message: "Incorrect Cart" })
         }
-
-        let product = await productModel.findOne({ _id: productId, isDeleted: false })
-        if (!product) {
-            return res.status(404).send({ status: false, message: "Product not found" })
-        }
-
 
 
         let productCart = await cartModel.findOne({ userId: userId }, { items: { $elemMatch: { productId: productId } } })
-
         if (!productCart) {
             return res.status(400).send({ status: false, message: 'Product does not exists in the cart' })
         }
 
-        // if (!valid.isValidNumber(removeProduct)) {
-        //     return res.status(400).send({ status: false, messege: "Invalid removeProduct" })
-        // }
-        removeProduct = parseInt(removeProduct)
 
+        removeProduct = parseInt(removeProduct)
         if (!/^[0-1]$/.test(removeProduct)) {
             return res.status(400).send({ status: false, messege: "RemoveProduct should be Either 0 or 1" })
         }
 
+
+
         //let productIndex = cartAvailable.items.findIndex(x => { if (x.productId = productId) return x })
         let productIndex = cartAvailable.items.indexOf(productId)
+        console.log(productIndex)
 
         if (productIndex == -1) {
             return res.status(403).send({ status: false, messege: "The product is not avaialble in this cart." })
@@ -269,4 +265,5 @@ module.exports.deleteCart = deleteCart
 //Javascript language is scription language (do not need compilation)
 //Javascript used in front end How? (dynamic way of used), used to make user interaction and event handling as when we scroll of mousue
 //Javascript used in front end How? (dynamic way of used), used to make user interaction and event handling as when we scroll of mousue
-//Javascript used in front end How? (dynamic way of used), used to make user interaction and event handling as when we scroll of mousueuserId
+//Javascript used in front end How? (dynamic way of used), used to make user interaction and event handling as when we scroll of mousue
+//Javascript used in front end How? (dynamic way of used), used to make user interaction and event handling as when we scroll of mousue
