@@ -8,7 +8,7 @@ exports.authentication = async function(req, res, next) {
         let token = req.headers.authorization
             //'Bearer Token'
         if (typeof token == 'undefined' || typeof token == 'null') {
-            return res.status(400).send({ status: true, msg: "Token must be present, not available." })
+            return res.status(400).send({ status: false, msg: "Token must be present, not available." })
         }
 
         let bearerToken = token.split(' ') //[Bearer, Token]

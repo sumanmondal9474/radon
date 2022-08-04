@@ -45,8 +45,10 @@ const createOrder = async function(req, res) {
             }
         }
 
-        if (status !== 'pending') {
-            return res.status(400).send({ status: true, Message: 'Status can only be PENDING, or you do not need to add statu, it will be already updated. ' })
+        if (status) {
+            if (status !== 'pending') {
+                return res.status(400).send({ status: true, Message: 'Status can only be PENDING, or you do not need to add statu, it will be already updated. ' })
+            }
         }
 
 
@@ -62,7 +64,7 @@ const createOrder = async function(req, res) {
 
 
         if (cart.items.length == 0) {
-            return res.status(400).send({ status: true, Message: 'ORDER ALREADY CREATED' })
+            return res.status(200).send({ status: true, Message: 'ORDER ALREADY CREATED' })
         }
 
         const createFinal = await orderModel.create(Obj)
@@ -111,9 +113,9 @@ const updateOrder = async function(req, res) {
         }
 
 
-        const userByOrder = await orderModel.findOne({ _id: orderId, userId })
+        const userByOrder = await orderModel.findOne({ _id: orderId, userId, cartId })
         if (!userByOrder) {
-            return res.status(404).send({ status: false, Message: `Order does not exist for ${userId}` })
+            return res.status(404).send({ status: false, Message: `Cart does not exist for ${userId}` })
         }
 
         if (userByOrder.status == 'completed' || userByOrder.status == 'cancelled') {
@@ -126,7 +128,7 @@ const updateOrder = async function(req, res) {
             }
         }
 
-        const updateOrder = await orderModel.findOneAndUpdate({ _id: orderId, userId }, status, { new: true })
+        const updateOrder = await orderModel.findOneAndUpdate({ _id: orderId, userId }, { status }, { new: true })
 
         return res.status(200).send({ status: true, Message: "Order updated successfully", data: updateOrder })
 
