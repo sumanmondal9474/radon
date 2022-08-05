@@ -16,7 +16,7 @@ exports.authentication = async function(req, res, next) {
 
         jwt.verify(Token, "MeNeSunRa-radon", function(error, data) {
             if (error) {
-                return res.status(401).send({ status: false, msg: error.message });
+                return res.status(401).send({ status: false, message: error.message });
             } else {
                 req.decodedToken = data
                 next()
@@ -41,7 +41,7 @@ exports.authorization = async function(req, res, next) {
 
         const checkUserId = await userModel.findOne({ _id: userId })
         if (!checkUserId) {
-            return res.status(400).send({ status: false, message: "No user available." })
+            return res.status(404).send({ status: false, message: "User Not Found" })
         }
 
         if (userId !== tokenUserId) {

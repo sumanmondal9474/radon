@@ -143,7 +143,7 @@ const updateCart = async(req, res) => {
 
 
         if (!cartAvailable) {
-            return res.status(404).send({ status: false, message: "Cart Not Found" })
+            return res.status(404).send({ status: false, message: `Cart not found for userid:-${userId}` })
         }
 
 
@@ -160,8 +160,8 @@ const updateCart = async(req, res) => {
 
 
 
-        let productIndex = cartAvailable.items.findIndex(x => { if (x.productId = productId) return x })
-
+        let productIndex = cartAvailable.items.findIndex(x => { if (x.productId == productId) return x })
+        console.log(productIndex)
 
         if (productIndex == -1) {
             return res.status(404).send({ status: false, messege: "The product is not avaialble in this cart." })
@@ -185,7 +185,7 @@ const updateCart = async(req, res) => {
         if (removeProduct == 1) {
 
             let final = {}
-
+            console.log(cartAvailable.items[productIndex].quantity)
             if (cartAvailable.items[productIndex].quantity == 1) {
 
                 final["$pull"] = { items: { productId: productId } }
@@ -221,7 +221,7 @@ const getCart = async function(req, res) {
         const checkCart = await cartModel.findOne({ userId: userId }).populate('items.productId', { title: 1, price: 1, productImage: 1 })
 
         if (!checkCart) {
-            return res.status(404).send({ status: false, Message: 'Cart not found ' })
+            return res.status(404).send({ status: false, Message: 'Cart not found' })
         }
 
         res.status(200).send({ status: true, message: 'Success', data: checkCart })
@@ -240,7 +240,7 @@ const deleteCart = async function(req, res) {
         const checkCart = await cartModel.findOne({ userId: userId })
 
         if (!checkCart) {
-            return res.status(400).send({ status: false, Message: 'Cart not found ' })
+            return res.status(404).send({ status: false, Message: 'Cart not found' })
         }
 
         await cartModel.findOneAndUpdate({ userId: userId }, { items: [], totalPrice: 0, totalItems: 0 })

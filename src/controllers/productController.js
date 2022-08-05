@@ -118,7 +118,7 @@ const createProduct = async function(req, res) {
 
         const result = await productModel.create(final)
 
-        return res.status(201).send({ status: true, message: "Product Successfully Created", data: result })
+        return res.status(201).send({ status: true, message: "Success", data: result })
 
     } catch (err) {
         res.status(500).send({ status: false, message: err.message })
@@ -155,7 +155,9 @@ const getQueryProduct = async(req, res) => {
             }
 
             const titleCheck = await productModel.find({ isDeleted: false }).select({ title: 1, _id: 0 })
-            if (!titleCheck) return res.status(404).send({ status: false, message: "Product not exsit with name " + name })
+            if (!titleCheck) {
+                return res.status(404).send({ status: false, message: "Product not exsit with name " + name })
+            }
             final.title = { $regex: name }
         }
 
@@ -178,8 +180,10 @@ const getQueryProduct = async(req, res) => {
         final.isDeleted = false
 
         priceSort = parseInt(priceSort)
+        console.log(priceSort)
         if (priceSort) {
-            if (priceSort !== -1 || priceSort !== 1) {
+            //Need to check here
+            if (priceSort == 0 || !/^[-1&1]{1}$/.test(priceSort)) {
                 return res.status(400).send({ status: false, message: "Only values acceptable (-1 and 1)" })
             }
         }
@@ -228,7 +232,7 @@ const updateProduct = async(req, res) => {
     let productId = req.params.productId
 
     if (!valid.isValidObjectId(productId)) {
-        return res.status(400).send({ status: false, msg: "ProductId is Invalid" })
+        return res.status(400).send({ status: false, message: "ProductId is Invalid" })
     }
     let productData = await productModel.findOne({ _id: productId, isDeleted: false })
     if (!productData) return res.status(404).send({ status: false, message: "No Product Found As per productId" })

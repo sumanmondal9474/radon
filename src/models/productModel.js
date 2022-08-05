@@ -1,5 +1,4 @@
 const mongoose = require('mongoose')
-const Decimal = mongoose.Types.Decimal128
 const productSchema = new mongoose.Schema({
     title: {
         type: String,
@@ -17,7 +16,6 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true,
         trim: true
-            // valid number / decimal
     },
     currencyId: {
         type: String,
