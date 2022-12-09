@@ -20,33 +20,35 @@ if(title.trim()==false||!category.trim()||!authorId.trim()||!body.trim()){
 if(!mongoose.isValidObjectId(authorId)){
     return res.status(400).send({status:false,msg:"please give authorId properly" })  
 }
-let obj={title:title,
+let blogData={title:title,
     category:category,
     authorId:authorId,
     body:body}
+if(tags){
+    if(Array.isArray(tags)){
+         blogData["tags"]=[...tags]
+    }
+    if(Object.prototype.toString.call(tags)==="[object String]"){
+         blogData["tags"]=[tags]
+    }
+    if(subcategory){
+        if(Array.isArray(subcategory)){
+             blogData["subcategory"]=[...subcategory]
+        }
+        if(Object.prototype.toString.call(subcategory)==="[object String]"){
+             blogData["subcategory"]=[subcategory]
+        }
 
-
-if(Object.keys(data).indexOf("tags")!==-1) {if(tags.trim())
-    { 
-        obj.tags=tags.trim()
-
-    }else return res.status(400).send({status:false,msg:"no value of tags"})
-
+    }
 }
 
-if(Object.keys(data).indexOf("subcategory")!==-1) {if(subcategory.trim())
-    { 
-    
-        obj.subcategory=subcategory.trim()
-      
-    }else return res.status(400).send({status:false,msg:"no value of subcategory"})
-}
- let blogCreate=await blogModel.create(obj)
-    return res.status(201).send({Status:false,data:blogCreate})
+
+ let blogCreate=await blogModel.create(blogData)
+    return res.status(201).send({status:true,data:blogCreate})
 
     }catch(err){
         res.status(500).send({err:err.message})
-    }
+    }
 }
 
 // ------------------getBlogs--------------------------------------
@@ -57,8 +59,8 @@ const getBlogs=async function(req,res){
         const data=req.query
         let {subcategory,authorId,category,tags}=data
         let obj={}
-    console.log(typeof obj)
-    console.log(Object.keys(data)[0])
+    // console.log(typeof obj)
+    // console.log(Object.keys(data)[0])
     //inside if undefind means false
        if(Object.keys(data)[0]){
             if(subcategory){
@@ -86,7 +88,8 @@ const getBlogs=async function(req,res){
             }
         }
 
-        const allBlog=await blogModel.find({$and:[obj,{isDeleted:false,isPublished:true}]})
+        const allBlog=await blogModel.find({$and:[obj,{isDeleted:false}]})
+      
 
         if(!allBlog[0]){
             return res.status(404).send({status:false,msg:"No Blog found"}) 

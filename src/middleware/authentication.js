@@ -28,6 +28,9 @@ const authorisation=async(req,res,next)=>{
     try{
         const token=req.headers["x-api-key"]
         const blogId=req.params.blogId
+        if(blogId===":blogId"){
+            return res.status(400).send({status:false, msg:"blogId is missing"})
+        }
         const blogByblogId=await blogModel.findById(blogId)
        // console.log(typeof blogByblogId.authorId)
         const userdata=jwt.verify(token,"this-is-a-srcret-key")

@@ -1,11 +1,9 @@
 const authorModel=require("../Model/authorModel")
 const {validate}=require("email-validator")
-const passwordValidator=require("password-validator")
 const jwt=require("jsonwebtoken")
 // const namevalidator=require("validate-npm-package-name")
 
-let schema = new passwordValidator();
-    schema.is().min(8).is().max(100).has().uppercase().has().lowercase().has().digits(2).has().not().spaces().is().not().oneOf(['Passw0rd', 'Password123', 'mypassword']);
+
 
 const createAuthor=async function(req,res){
     try{
@@ -30,7 +28,11 @@ return res.status(400).send({status:false,msg:"Enter a valid title Mr or Mrs or 
 if(!validate(email)){
     return res.status(400).send({status:false,msg:"Enter a valid email " })
 }
-    let checkPassword = schema.validate(password)
+    let duplicateEmail=await authorModel.findOne({email})
+    if(duplicateEmail) {
+        return res.status(400).send({status:false,msg:"Enter a unique email " })
+    }
+    let checkPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,15}$/.test(password)
     if(!checkPassword) {
         return res.status(400).send({status:false,msg:"Enter a valid password " })
     }
@@ -40,7 +42,7 @@ if(!validate(email)){
 
       }catch(err){
 
-        res.status(500).send({err:err.message})
+        res.status(500).send({status:false,err:err.message})
     }
 }
 
