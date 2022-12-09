@@ -62,7 +62,7 @@ return res.status(400).send({status:false,msg:"Enter a valid email " })
     }
 // email=email.toLowerCase()
 
-    let checkPassword = schema.validate(password)
+    let checkPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,15}$/.test(password)
     if(!checkPassword) {
         return res.status(400).send({status:false,msg:"Enter a valid password " })
     }
